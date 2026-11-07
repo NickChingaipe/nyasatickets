@@ -17,6 +17,7 @@ import {
 import { EventItem, TicketTier, TicketBooking } from '../../types';
 import { Button } from '../common/Button';
 import { Badge } from '../common/Badge';
+import { supabaseService } from '../../lib/supabase';
 
 interface CheckoutModalProps {
   event: EventItem;
@@ -33,12 +34,13 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   initialTier,
   onClose,
   onOrderConfirmed,
-  customerProfileName = 'Chikondi Banda',
-  customerProfileEmail = 'chikondi.banda@nyasamail.mw',
-  customerProfilePhone = '+265 99 123 4567'
+  customerProfileName = '',
+  customerProfileEmail = '',
+  customerProfilePhone = ''
 }) => {
   const [selectedTierId, setSelectedTierId] = useState<string>(initialTier?.id || event.tiers[0]?.id || '');
   const [quantity, setQuantity] = useState<number>(1);
+  const [paymentProvider, setPaymentProvider] = useState<'paychangu' | 'airtel' | 'mpamba'>('airtel');
 
   // Customer contact form
   const [fullName, setFullName] = useState<string>(customerProfileName);
@@ -63,18 +65,34 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     return Object.keys(errors).length === 0;
   };
 
-  const handleConfirmReservation = (e: React.FormEvent) => {
+  const handleConfirmReservation = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    if (!validateForm() || !selectedTier) return;
 
     setIsSubmitting(true);
-
-    setTimeout(() => {
-      setIsSubmitting(false);
-
+    setFormErrors({});
+    try {
+      const result = await supabaseService.createTicketOrder({
+        eventId: event.id,
+        tierId: selectedTier.id,
+        quantity,
+        customerName: fullName,
+        customerEmail: email,
+        customerPhone: phone
+      });
+      if (!result.success) throw new Error(result.error || 'Supabase could not create the order.');
+      const order = Array.isArray(result.data) ? result.data[0] : result.data;
+      const orderId = order?.order_id || order?.id;
+      const referenceNumber = order?.order_number || order?.reference_number || order?.reference;
+      if (!orderId || !referenceNumber) throw new Error('The backend did not return an order id and reference.');
+      const actualUnitPrice = Number(order.unit_price_mwk ?? order.unit_price ?? unitPrice);
+      const actualServiceFee = Number(order.fees ?? order.service_fee_mwk ?? order.service_fee ?? serviceFeeMWK);
+      const actualTotal = Number(order.total ?? order.total_mwk ?? order.total_amount ?? totalMWK);
+      const paymentResult = await supabaseService.createPaymentAttempt(String(orderId), paymentProvider, actualTotal);
+      const paymentData = Array.isArray(paymentResult.data) ? paymentResult.data[0] : paymentResult.data;
       const newBooking: TicketBooking = {
-        id: `tkt-${Date.now()}`,
-        referenceNumber: `NYASA-2026-${Math.floor(1000 + Math.random() * 9000)}B`,
+        id: String(orderId),
+        referenceNumber: String(referenceNumber),
         eventId: event.id,
         eventTitle: event.title,
         eventDate: event.dateDisplay,
@@ -83,22 +101,29 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         city: event.city,
         tierName: selectedTier.name,
         quantity,
-        unitPriceMWK: unitPrice,
-        serviceFeeMWK: serviceFeeMWK,
-        totalMWK: totalMWK,
+        unitPriceMWK: actualUnitPrice,
+        serviceFeeMWK: actualServiceFee,
+        totalMWK: actualTotal,
         customerName: fullName,
         customerEmail: email,
         customerPhone: phone,
         status: 'pending_payment',
         purchaseDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
         image: event.image,
-        gateInstructions: `Present this order reference at ${event.venue} gate turnstiles on ${event.dateDisplay}.`,
-        paymentNotice: 'Order confirmed as reservation. Live payment gateway integration (Airtel Money, TNM Mpamba, Card) is coming in Phase 3.'
+        gateInstructions: `Present this order reference at ${event.venue} on ${event.dateDisplay}.`,
+        paymentNotice: paymentResult.success
+          ? 'Payment has been initiated. Complete the provider prompt to confirm your tickets.'
+          : `Order created, but payment could not be started: ${paymentResult.error || 'provider unavailable'}`
       };
-
       onOrderConfirmed(newBooking);
+      const checkoutUrl = paymentData?.checkout_url || paymentData?.payment_url;
+      if (checkoutUrl) window.location.assign(checkoutUrl);
       onClose();
-    }, 600);
+    } catch (error) {
+      setFormErrors({ server: error instanceof Error ? error.message : 'Order creation failed.' });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -111,7 +136,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         <div className="p-5 sm:p-6 border-b border-[#2d1235] bg-[#1a0920] flex items-center justify-between gap-4 shrink-0">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] uppercase font-bold tracking-wider text-[#f472b6]">
+              <span className="text-[10px] uppercase font-bold tracking-wider text-[#a78bfa]">
                 Secure Checkout
               </span>
               <span className="text-[#5f4969]">·</span>
@@ -143,18 +168,18 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               />
             </div>
             <div className="min-w-0 space-y-1">
-              <span className="text-[10px] uppercase font-bold text-[#f472b6]">
+              <span className="text-[10px] uppercase font-bold text-[#a78bfa]">
                 {event.categoryLabel}
               </span>
               <h3 className="text-sm sm:text-base font-display font-bold text-white truncate">
                 {event.title}
               </h3>
               <p className="text-[#a997b2] flex items-center gap-1.5 truncate">
-                <MapPin className="w-3.5 h-3.5 text-[#f43f5e] shrink-0" />
+                <MapPin className="w-3.5 h-3.5 text-[#8b7bff] shrink-0" />
                 <span>{event.venue}, {event.city}</span>
               </p>
               <p className="text-[#a997b2] flex items-center gap-1.5 truncate">
-                <Calendar className="w-3.5 h-3.5 text-[#f43f5e] shrink-0" />
+                <Calendar className="w-3.5 h-3.5 text-[#8b7bff] shrink-0" />
                 <span>{event.dateDisplay} · {event.timeDisplay}</span>
               </p>
             </div>
@@ -174,7 +199,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                     onClick={() => setSelectedTierId(tier.id)}
                     className={`p-3.5 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
                       isSelected
-                        ? 'bg-[#2e0e37] border-[#f43f5e] text-white shadow-sm'
+                        ? 'bg-[#2e0e37] border-[#8b7bff] text-white shadow-sm'
                         : 'bg-[#1b0a21] border-[#2e1236] text-[#bcaac6] hover:border-[#4b1d58]'
                     }`}
                   >
@@ -243,9 +268,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   type="text"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  placeholder="e.g. Chikondi Banda"
+                  placeholder="Full name"
                   className={`w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border text-white focus:outline-none transition-all ${
-                    formErrors.fullName ? 'border-rose-500' : 'border-[#3d174b] focus:border-[#f43f5e]'
+                    formErrors.fullName ? 'border-rose-500' : 'border-[#3d174b] focus:border-[#8b7bff]'
                   }`}
                 />
                 {formErrors.fullName && (
@@ -261,7 +286,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="e.g. name@domain.mw"
                   className={`w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border text-white focus:outline-none transition-all ${
-                    formErrors.email ? 'border-rose-500' : 'border-[#3d174b] focus:border-[#f43f5e]'
+                    formErrors.email ? 'border-rose-500' : 'border-[#3d174b] focus:border-[#8b7bff]'
                   }`}
                 />
                 {formErrors.email && (
@@ -278,7 +303,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="+265 99 123 4567"
                 className={`w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border text-white focus:outline-none transition-all ${
-                  formErrors.phone ? 'border-rose-500' : 'border-[#3d174b] focus:border-[#f43f5e]'
+                  formErrors.phone ? 'border-rose-500' : 'border-[#3d174b] focus:border-[#8b7bff]'
                 }`}
               />
               {formErrors.phone && (
@@ -317,22 +342,32 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
             <div className="pt-2 border-t border-[#2c1135] flex justify-between items-center text-sm font-bold text-white">
               <span>Total Amount</span>
-              <span className="text-base font-mono text-[#f472b6] tabular-nums">
+              <span className="text-base font-mono text-[#a78bfa] tabular-nums">
                 MWK {totalMWK.toLocaleString()}
               </span>
             </div>
           </div>
 
-          {/* 6. Explicit Payment Integration Placeholder Notice (Phase 2 Rule) */}
-          <div className="p-4 rounded-2xl bg-[#250d30] border border-[#521b64] text-[#d6bfe3] space-y-2">
-            <div className="flex items-center gap-2 text-xs font-bold text-[#f472b6]">
-              <AlertCircle className="w-4 h-4 text-[#f472b6] shrink-0" />
-              <span>Payment Gateway Integration (Phase 3 Notice)</span>
-            </div>
-            <p className="text-[11px] text-[#baa6c3] leading-relaxed">
-              In accordance with Phase 2 specifications, payment gateways (Airtel Money, TNM Mpamba, and Visa/Mastercard) are not yet connected. Confirming your order will create an official reservation reference on your dashboard without simulating fake monetary transactions.
-            </p>
+          <div>
+            <label htmlFor="checkout-payment-provider" className="text-xs font-bold text-white uppercase tracking-wider block mb-2">
+              Payment method
+            </label>
+            <select
+              id="checkout-payment-provider"
+              value={paymentProvider}
+              onChange={(e) => setPaymentProvider(e.target.value as typeof paymentProvider)}
+              className="w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3d174b] text-white focus:outline-none focus:border-[#8b7bff]"
+            >
+              <option value="airtel">Airtel Money</option>
+              <option value="mpamba">TNM Mpamba</option>
+              <option value="paychangu">Card / PayChangu</option>
+            </select>
           </div>
+
+          {/* 6. Explicit Payment Integration Placeholder Notice (Phase 2 Rule) */}
+          {formErrors.server && (
+            <p role="alert" className="rounded-xl border border-rose-800 bg-rose-950/40 px-4 py-3 text-xs text-rose-200">{formErrors.server}</p>
+          )}
 
           {/* Submit Action */}
           <div className="pt-2 flex items-center justify-end gap-3">

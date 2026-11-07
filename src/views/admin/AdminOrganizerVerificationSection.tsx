@@ -54,6 +54,7 @@ export const AdminOrganizerVerificationSection: React.FC<AdminOrganizerVerificat
   const [rejectionTarget, setRejectionTarget] = useState<OrganizerApplication | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
   const [rejectionError, setRejectionError] = useState('');
+  const [actionError, setActionError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Filtered applications
@@ -73,12 +74,17 @@ export const AdminOrganizerVerificationSection: React.FC<AdminOrganizerVerificat
   const handleApprove = async (app: OrganizerApplication) => {
     setIsSubmitting(true);
     try {
-      const appId = app.id || 'app-temp';
-      await supabaseService.reviewOrganizerApplication(appId, 'approved', 'Verified by Admin');
+      if (!app.id) throw new Error('This application has no backend id.');
+      const appId = app.id;
+      const result = await supabaseService.reviewOrganizerApplication(appId, 'approved', 'Verified by Admin');
+      if (!result.success) throw new Error(result.error || 'Organizer review failed.');
+      setActionError('');
       onApproveApplication(appId, 'All Malawi registration documents and MRA certificates verified.');
       if (selectedApplication?.id === app.id) {
         setSelectedApplication(null);
       }
+    } catch (error) {
+      setActionError(error instanceof Error ? error.message : 'Organizer approval failed.');
     } finally {
       setIsSubmitting(false);
     }
@@ -94,8 +100,11 @@ export const AdminOrganizerVerificationSection: React.FC<AdminOrganizerVerificat
 
     setIsSubmitting(true);
     try {
-      const appId = rejectionTarget.id || 'app-temp';
-      await supabaseService.reviewOrganizerApplication(appId, 'rejected', rejectionReason.trim());
+      if (!rejectionTarget.id) throw new Error('This application has no backend id.');
+      const appId = rejectionTarget.id;
+      const result = await supabaseService.reviewOrganizerApplication(appId, 'rejected', rejectionReason.trim());
+      if (!result.success) throw new Error(result.error || 'Organizer review failed.');
+      setActionError('');
       onRejectApplication(appId, rejectionReason.trim());
       setRejectionTarget(null);
       setRejectionReason('');
@@ -103,6 +112,8 @@ export const AdminOrganizerVerificationSection: React.FC<AdminOrganizerVerificat
       if (selectedApplication?.id === appId) {
         setSelectedApplication(null);
       }
+    } catch (error) {
+      setActionError(error instanceof Error ? error.message : 'Organizer rejection failed.');
     } finally {
       setIsSubmitting(false);
     }
@@ -125,11 +136,12 @@ export const AdminOrganizerVerificationSection: React.FC<AdminOrganizerVerificat
 
   return (
     <div className="space-y-6">
+        {actionError && <p role="alert" className="rounded-xl border border-rose-800 bg-rose-950/40 px-4 py-3 text-sm text-rose-200">{actionError}</p>}
       {/* 1. Header & Section Navigation */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#2d1237]">
         <div>
           <h2 className="text-xl sm:text-2xl font-display font-bold text-white flex items-center gap-2.5">
-            <Building className="w-6 h-6 text-[#f43f5e]" />
+            <Building className="w-6 h-6 text-[#8b7bff]" />
             Organiser Verification & Accreditation
           </h2>
           <p className="text-xs sm:text-sm text-[#9f8ea7] mt-1">
@@ -143,13 +155,13 @@ export const AdminOrganizerVerificationSection: React.FC<AdminOrganizerVerificat
             onClick={() => setActiveTab('pending')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-2 ${
               activeTab === 'pending'
-                ? 'bg-[#831843] text-white shadow-md'
+                ? 'bg-[#3e347d] text-white shadow-md'
                 : 'text-[#9c89a7] hover:text-white'
             }`}
           >
             <span>Applications</span>
             {pendingCount > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-[#f43f5e] text-white font-mono">
+              <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-[#8b7bff] text-white font-mono">
                 {pendingCount}
               </span>
             )}
@@ -159,7 +171,7 @@ export const AdminOrganizerVerificationSection: React.FC<AdminOrganizerVerificat
             onClick={() => setActiveTab('history')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
               activeTab === 'history'
-                ? 'bg-[#831843] text-white shadow-md'
+                ? 'bg-[#3e347d] text-white shadow-md'
                 : 'text-[#9c89a7] hover:text-white'
             }`}
           >
@@ -180,7 +192,7 @@ export const AdminOrganizerVerificationSection: React.FC<AdminOrganizerVerificat
                 placeholder="Search by organization, registration #, city..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 rounded-xl bg-[#180a1e] border border-[#35143f] text-white text-xs placeholder-[#7c6987] focus:outline-none focus:border-[#f43f5e]"
+                className="w-full pl-9 pr-4 py-2 rounded-xl bg-[#180a1e] border border-[#35143f] text-white text-xs placeholder-[#7c6987] focus:outline-none focus:border-[#8b7bff]"
               />
             </div>
 
@@ -244,7 +256,7 @@ export const AdminOrganizerVerificationSection: React.FC<AdminOrganizerVerificat
                       </div>
                       <div className="col-span-2 pt-1 border-t border-[#2c1034] flex items-center justify-between text-[11px]">
                         <span className="text-[#867490]">Submitted: {app.submittedAt}</span>
-                        <span className="text-[#f472b6] font-medium">{app.documents.length} verified documents</span>
+                        <span className="text-[#a78bfa] font-medium">{app.documents.length} verified documents</span>
                       </div>
                     </div>
 
@@ -389,15 +401,15 @@ export const AdminOrganizerVerificationSection: React.FC<AdminOrganizerVerificat
 
               <div className="p-3.5 rounded-2xl bg-[#1f0b27] border border-[#381643] space-y-1">
                 <span className="text-[10px] text-[#8e7a96] uppercase font-bold tracking-wider">Direct Contacts</span>
-                <p className="text-white flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 text-[#f43f5e]" /> {selectedApplication.email}</p>
+                <p className="text-white flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 text-[#8b7bff]" /> {selectedApplication.email}</p>
                 <p className="text-white flex items-center gap-1.5"><Phone className="w-3.5 h-3.5 text-[#c084fc]" /> {selectedApplication.phone}</p>
               </div>
 
               <div className="p-3.5 rounded-2xl bg-[#1f0b27] border border-[#381643] space-y-1">
                 <span className="text-[10px] text-[#8e7a96] uppercase font-bold tracking-wider">Online Presence</span>
                 <p className="text-white flex items-center gap-1.5 truncate">
-                  <Globe className="w-3.5 h-3.5 text-pink-400" />
-                  <a href={selectedApplication.website} target="_blank" rel="noreferrer" className="underline hover:text-[#f43f5e] truncate">
+                  <Globe className="w-3.5 h-3.5 text-violet-400" />
+                  <a href={selectedApplication.website} target="_blank" rel="noreferrer" className="underline hover:text-[#8b7bff] truncate">
                     {selectedApplication.website}
                   </a>
                 </p>
@@ -419,7 +431,7 @@ export const AdminOrganizerVerificationSection: React.FC<AdminOrganizerVerificat
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-[#f43f5e]" />
+                  <FileText className="w-4 h-4 text-[#8b7bff]" />
                   Uploaded Verification Documents ({selectedApplication.documents.length})
                 </span>
                 <span className="text-[10px] text-emerald-400 font-mono">Metadata Validated</span>
@@ -432,7 +444,7 @@ export const AdminOrganizerVerificationSection: React.FC<AdminOrganizerVerificat
                     className="p-3.5 rounded-2xl bg-[#1f0c27] border border-[#3c1747] flex items-center justify-between gap-3 text-xs"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-[#831843]/30 border border-[#f43f5e]/30 flex items-center justify-center text-[#f472b6]">
+                      <div className="w-9 h-9 rounded-xl bg-[#3e347d]/30 border border-[#8b7bff]/30 flex items-center justify-center text-[#a78bfa]">
                         <FileCheck className="w-4 h-4" />
                       </div>
                       <div>
@@ -520,7 +532,7 @@ export const AdminOrganizerVerificationSection: React.FC<AdminOrganizerVerificat
             </div>
 
             <p className="text-xs text-[#cebdd9]">
-              Please provide clear compliance or documentary grounds for rejection. This notification is returned to the applicant via Supabase RPC <code className="text-[#f43f5e] font-mono">review_organizer_application</code>.
+              Please provide clear compliance or documentary grounds for rejection. This notification is returned to the applicant via Supabase RPC <code className="text-[#8b7bff] font-mono">review_organizer_application</code>.
             </p>
 
             <div className="space-y-1.5">

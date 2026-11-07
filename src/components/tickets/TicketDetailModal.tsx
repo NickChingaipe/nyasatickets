@@ -56,7 +56,7 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
         <div className="p-5 sm:p-6 border-b border-[#2d1235] bg-[#1a0920] flex items-center justify-between gap-4 shrink-0">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] uppercase font-bold tracking-wider text-[#f472b6]">
+              <span className="text-[10px] uppercase font-bold tracking-wider text-[#a78bfa]">
                 Ticket Pass Detail
               </span>
               <span className="text-[#5f4969]">·</span>
@@ -92,13 +92,13 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
 
           {/* FUTURE QR CODE INTEGRATION PLACEHOLDER (Phase 2 Rule: No fake QR codes) */}
           <div className="p-6 rounded-2xl bg-[#1c0a22] border-2 border-dashed border-[#4c1c5c] text-center space-y-3">
-            <div className="w-14 h-14 rounded-2xl bg-[#2a0e33] border border-[#581f6c] flex items-center justify-center text-[#f472b6] mx-auto shadow-inner">
+            <div className="w-14 h-14 rounded-2xl bg-[#2a0e33] border border-[#581f6c] flex items-center justify-center text-[#a78bfa] mx-auto shadow-inner">
               <QrCode className="w-7 h-7" />
             </div>
 
             <div className="space-y-1 max-w-sm mx-auto">
               <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-[#381343] text-[#f4d1fd] text-[10px] font-bold uppercase tracking-wider">
-                <Lock className="w-3 h-3 text-[#f43f5e]" />
+                <Lock className="w-3 h-3 text-[#8b7bff]" />
                 Digital Gate Pass QR — System Placeholder
               </div>
 
@@ -125,7 +125,7 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[#bba9c4]">
               <div className="flex items-start gap-2">
-                <Calendar className="w-4 h-4 text-[#f43f5e] shrink-0 mt-0.5" />
+                <Calendar className="w-4 h-4 text-[#8b7bff] shrink-0 mt-0.5" />
                 <div>
                   <span className="text-white font-semibold block">{ticket.eventDate}</span>
                   <span className="text-[11px] text-[#93809c]">{ticket.eventTime}</span>
@@ -133,7 +133,7 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
               </div>
 
               <div className="flex items-start gap-2">
-                <MapPin className="w-4 h-4 text-[#f43f5e] shrink-0 mt-0.5" />
+                <MapPin className="w-4 h-4 text-[#8b7bff] shrink-0 mt-0.5" />
                 <div>
                   <span className="text-white font-semibold block">{ticket.venue}</span>
                   <span className="text-[11px] text-[#93809c]">{ticket.city}, Malawi</span>
@@ -170,7 +170,7 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
             </h4>
             <div className="flex justify-between text-[#bcaac5]">
               <span>Tier:</span>
-              <span className="text-[#f472b6] font-semibold">{ticket.tierName}</span>
+              <span className="text-[#a78bfa] font-semibold">{ticket.tierName}</span>
             </div>
             <div className="flex justify-between text-[#bcaac5]">
               <span>Quantity:</span>
@@ -186,7 +186,7 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
             </div>
             <div className="pt-2 border-t border-[#2a1031] flex justify-between font-bold text-white text-sm">
               <span>Total:</span>
-              <span className="text-[#f472b6] font-mono tabular-nums">
+              <span className="text-[#a78bfa] font-mono tabular-nums">
                 MWK {ticket.totalMWK.toLocaleString()}
               </span>
             </div>
@@ -195,7 +195,7 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
           {/* Gate Instructions */}
           {ticket.gateInstructions && (
             <div className="p-3.5 rounded-xl bg-[#200d27] border border-[#35143e] text-[#cfbed8] space-y-1">
-              <span className="text-[10px] uppercase font-bold text-[#f472b6]">Venue Instructions:</span>
+              <span className="text-[10px] uppercase font-bold text-[#a78bfa]">Venue Instructions:</span>
               <p className="text-[11px]">{ticket.gateInstructions}</p>
             </div>
           )}

@@ -73,7 +73,7 @@ export const OrganizerEventsSection: React.FC<OrganizerEventsSectionProps> = ({
       {/* 1. Header & Actions Strip */}
       <div className="p-5 sm:p-6 rounded-3xl bg-[#16081c] border border-[#32133b] shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <span className="text-[10px] uppercase font-bold tracking-wider text-[#f472b6]">
+          <span className="text-[10px] uppercase font-bold tracking-wider text-[#a78bfa]">
             Event Portfolio Management
           </span>
           <h2 className="text-xl sm:text-2xl font-display font-bold text-white mt-0.5">
@@ -113,7 +113,7 @@ export const OrganizerEventsSection: React.FC<OrganizerEventsSectionProps> = ({
             <button
               onClick={() => setStatusFilter('all')}
               className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap cursor-pointer transition-colors ${
-                statusFilter === 'all' ? 'bg-[#831843] text-white shadow-sm' : 'text-[#a28fa8] hover:text-white'
+                statusFilter === 'all' ? 'bg-[#3e347d] text-white shadow-sm' : 'text-[#a28fa8] hover:text-white'
               }`}
             >
               All Events ({events.length})
@@ -121,7 +121,7 @@ export const OrganizerEventsSection: React.FC<OrganizerEventsSectionProps> = ({
             <button
               onClick={() => setStatusFilter('published')}
               className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap cursor-pointer transition-colors ${
-                statusFilter === 'published' ? 'bg-[#831843] text-white shadow-sm' : 'text-[#a28fa8] hover:text-white'
+                statusFilter === 'published' ? 'bg-[#3e347d] text-white shadow-sm' : 'text-[#a28fa8] hover:text-white'
               }`}
             >
               Published ({events.filter(e => e.status === 'published').length})
@@ -129,7 +129,7 @@ export const OrganizerEventsSection: React.FC<OrganizerEventsSectionProps> = ({
             <button
               onClick={() => setStatusFilter('pending_approval')}
               className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap cursor-pointer transition-colors ${
-                statusFilter === 'pending_approval' ? 'bg-[#831843] text-white shadow-sm' : 'text-[#a28fa8] hover:text-white'
+                statusFilter === 'pending_approval' ? 'bg-[#3e347d] text-white shadow-sm' : 'text-[#a28fa8] hover:text-white'
               }`}
             >
               Pending Approval ({events.filter(e => e.status === 'pending_approval').length})
@@ -137,7 +137,7 @@ export const OrganizerEventsSection: React.FC<OrganizerEventsSectionProps> = ({
             <button
               onClick={() => setStatusFilter('draft')}
               className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap cursor-pointer transition-colors ${
-                statusFilter === 'draft' ? 'bg-[#831843] text-white shadow-sm' : 'text-[#a28fa8] hover:text-white'
+                statusFilter === 'draft' ? 'bg-[#3e347d] text-white shadow-sm' : 'text-[#a28fa8] hover:text-white'
               }`}
             >
               Drafts ({events.filter(e => e.status === 'draft').length})
@@ -145,7 +145,7 @@ export const OrganizerEventsSection: React.FC<OrganizerEventsSectionProps> = ({
             <button
               onClick={() => setStatusFilter('rejected')}
               className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap cursor-pointer transition-colors ${
-                statusFilter === 'rejected' ? 'bg-[#831843] text-white shadow-sm' : 'text-[#a28fa8] hover:text-white'
+                statusFilter === 'rejected' ? 'bg-[#3e347d] text-white shadow-sm' : 'text-[#a28fa8] hover:text-white'
               }`}
             >
               Action Required ({events.filter(e => e.status === 'rejected').length})
@@ -160,7 +160,7 @@ export const OrganizerEventsSection: React.FC<OrganizerEventsSectionProps> = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Filter by event title or city..."
-              className="w-full pl-9 pr-3 py-1.5 rounded-xl bg-[#1b0b21] border border-[#3b1747] text-xs text-white focus:outline-none focus:border-[#f43f5e]"
+              className="w-full pl-9 pr-3 py-1.5 rounded-xl bg-[#1b0b21] border border-[#3b1747] text-xs text-white focus:outline-none focus:border-[#8b7bff]"
             />
           </div>
         </div>
@@ -191,7 +191,7 @@ export const OrganizerEventsSection: React.FC<OrganizerEventsSectionProps> = ({
                     <div className="space-y-1 min-w-0 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
                         {getStatusBadge(event.status)}
-                        <span className="text-[11px] font-semibold text-[#f472b6]">
+                        <span className="text-[11px] font-semibold text-[#a78bfa]">
                           {event.category.toUpperCase()} · {event.city}
                         </span>
                       </div>
@@ -202,11 +202,11 @@ export const OrganizerEventsSection: React.FC<OrganizerEventsSectionProps> = ({
 
                       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#a997b2]">
                         <span className="flex items-center gap-1">
-                          <Calendar className="w-3.5 h-3.5 text-[#f43f5e]" />
+                          <Calendar className="w-3.5 h-3.5 text-[#8b7bff]" />
                           {event.startDate} ({event.startTime})
                         </span>
                         <span className="flex items-center gap-1">
-                          <MapPin className="w-3.5 h-3.5 text-[#f43f5e]" />
+                          <MapPin className="w-3.5 h-3.5 text-[#8b7bff]" />
                           {event.venueName}
                         </span>
                       </div>
@@ -229,7 +229,7 @@ export const OrganizerEventsSection: React.FC<OrganizerEventsSectionProps> = ({
                       <div className="flex items-center gap-2 mt-1">
                         <div className="w-20 h-2 rounded-full bg-[#2a1032] overflow-hidden">
                           <div 
-                            className="h-full bg-gradient-to-r from-[#9f1239] to-[#c084fc] rounded-full"
+                            className="h-full bg-gradient-to-r from-[#4c1d95] to-[#c084fc] rounded-full"
                             style={{ width: `${percentSold}%` }}
                           />
                         </div>

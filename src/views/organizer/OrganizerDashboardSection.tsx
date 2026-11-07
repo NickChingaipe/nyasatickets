@@ -40,19 +40,6 @@ export const OrganizerDashboardSection: React.FC<OrganizerDashboardSectionProps>
   const totalTicketsSold = events.reduce((sum, e) => sum + e.ticketsSold, 0);
   const totalRevenueMWK = events.reduce((sum, e) => sum + e.grossRevenueMWK, 0);
 
-  // Weekly ticket sales data for responsive SVG chart
-  const weeklySalesData = [
-    { day: 'Mon', sales: 18, revenueMWK: 360000 },
-    { day: 'Tue', sales: 24, revenueMWK: 520000 },
-    { day: 'Wed', sales: 42, revenueMWK: 980000 },
-    { day: 'Thu', sales: 38, revenueMWK: 810000 },
-    { day: 'Fri', sales: 65, revenueMWK: 1650000 },
-    { day: 'Sat', sales: 92, revenueMWK: 2420000 },
-    { day: 'Sun', sales: 48, revenueMWK: 1100000 }
-  ];
-
-  const maxSales = Math.max(...weeklySalesData.map(d => d.sales));
-
   return (
     <div className="space-y-8">
       {/* 1. Dashboard Header Banner */}
@@ -61,9 +48,8 @@ export const OrganizerDashboardSection: React.FC<OrganizerDashboardSectionProps>
           <div className="space-y-2">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#581763] text-[#f4d1fd] border border-[#83269c]/70">
-                Authorized Organisation: Mandala Live Collective
+                Organizer Workspace
               </span>
-              <span className="text-xs text-[#a28fa8] font-mono">Reg: MBR-104928</span>
             </div>
 
             <h2 className="text-2xl sm:text-3xl font-display font-black text-white tracking-tight">
@@ -137,7 +123,7 @@ export const OrganizerDashboardSection: React.FC<OrganizerDashboardSectionProps>
         <div className="p-4 sm:p-5 rounded-2xl bg-[#170a1c] border border-[#32133b] space-y-1.5 shadow-sm">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-semibold text-[#9c89a7]">Tickets Sold</span>
-            <Users className="w-4 h-4 text-[#f43f5e]" />
+            <Users className="w-4 h-4 text-[#8b7bff]" />
           </div>
           <p className="text-xl sm:text-2xl font-mono font-bold text-white tabular-nums">
             {totalTicketsSold.toLocaleString()}
@@ -149,7 +135,7 @@ export const OrganizerDashboardSection: React.FC<OrganizerDashboardSectionProps>
         <div className="col-span-2 lg:col-span-1 p-4 sm:p-5 rounded-2xl bg-[#170a1c] border border-[#32133b] space-y-1.5 shadow-sm">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-semibold text-[#9c89a7]">Total Sales (MWK)</span>
-            <TrendingUp className="w-4 h-4 text-[#f472b6]" />
+            <TrendingUp className="w-4 h-4 text-[#a78bfa]" />
           </div>
           <p className="text-xl sm:text-2xl font-mono font-bold text-white tabular-nums">
             MWK {(totalRevenueMWK / 1000000).toFixed(1)}M
@@ -160,11 +146,11 @@ export const OrganizerDashboardSection: React.FC<OrganizerDashboardSectionProps>
 
       {/* 3. Real vs Placeholder Data Integrity Notice */}
       <div className="p-4 rounded-2xl bg-[#1f0c26] border border-[#481c56] flex items-start gap-3 text-xs text-[#d1bedb]">
-        <Activity className="w-5 h-5 text-[#f472b6] shrink-0 mt-0.5" />
+        <Activity className="w-5 h-5 text-[#a78bfa] shrink-0 mt-0.5" />
         <div>
-          <span className="font-semibold text-white block">Real-time Data vs Simulation Transparency:</span>
+          <span className="font-semibold text-white block">Backend data status</span>
           <p className="text-[11px] text-[#a997b4] mt-0.5 leading-relaxed">
-            Data for <strong>Mandala Live Collective</strong> events, tickets inventory, and attendees are maintained in state. Payment gateways and real turnstile QR check-in scanning will connect in the final ticketing backend phase.
+            Ticket sales, attendees, and analytics will appear here when the corresponding Supabase data is available.
           </p>
         </div>
       </div>
@@ -178,42 +164,12 @@ export const OrganizerDashboardSection: React.FC<OrganizerDashboardSectionProps>
               <h3 className="text-base font-display font-bold text-white">7-Day Ticket Sales Velocity</h3>
               <p className="text-xs text-[#9f8fa9]">Daily passes booked across all active events</p>
             </div>
-            <span className="text-xs font-mono font-bold text-emerald-400">+34% vs last week</span>
+            <span className="text-xs text-[#9f8fa9]">No sales analytics loaded</span>
           </div>
 
           {/* Responsive SVG Bar & Area Chart */}
-          <div className="pt-4">
-            <div className="h-48 w-full flex items-end justify-between gap-2 sm:gap-4 px-2 pb-2 border-b border-[#2d1235]">
-              {weeklySalesData.map((dayData, idx) => {
-                const heightPercent = Math.round((dayData.sales / maxSales) * 100);
-
-                return (
-                  <div key={idx} className="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
-                    {/* Tooltip on hover */}
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px] bg-[#290d2f] text-white px-2 py-1 rounded-md border border-[#4a1859] whitespace-nowrap mb-1">
-                      {dayData.sales} tix · MWK {(dayData.revenueMWK / 1000).toFixed(0)}k
-                    </div>
-
-                    {/* Bar */}
-                    <div className="w-full max-w-[40px] rounded-t-lg bg-[#240e2b] overflow-hidden flex items-end">
-                      <div 
-                        className="w-full bg-gradient-to-t from-[#9f1239] via-[#831843] to-[#c084fc] rounded-t-lg transition-all duration-300 group-hover:brightness-125"
-                        style={{ height: `${heightPercent}%` }}
-                      />
-                    </div>
-
-                    <span className="text-[11px] font-medium text-[#9a86a3] group-hover:text-white transition-colors">
-                      {dayData.day}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="pt-2 flex items-center justify-between text-xs text-[#9f8fa9] font-mono">
-            <span>Peak Day: Saturday (92 tickets)</span>
-            <span>Total 7-Day Revenue: MWK 7,840,000</span>
+          <div className="h-48 flex items-center justify-center border-b border-[#2d1235] text-sm text-[#8e7a96]">
+            Sales data will appear when available.
           </div>
         </div>
 
@@ -223,7 +179,7 @@ export const OrganizerDashboardSection: React.FC<OrganizerDashboardSectionProps>
             <h3 className="text-base font-display font-bold text-white">Upcoming Events</h3>
             <button
               onClick={() => onNavigateToTab('events')}
-              className="text-xs text-[#f472b6] hover:underline cursor-pointer"
+              className="text-xs text-[#a78bfa] hover:underline cursor-pointer"
             >
               View all ({events.length})
             </button>
@@ -265,7 +221,7 @@ export const OrganizerDashboardSection: React.FC<OrganizerDashboardSectionProps>
                     </div>
                     <div className="w-full h-1.5 rounded-full bg-[#290d2f] overflow-hidden">
                       <div 
-                        className="h-full bg-gradient-to-r from-[#9f1239] to-[#c084fc] rounded-full"
+                        className="h-full bg-gradient-to-r from-[#4c1d95] to-[#c084fc] rounded-full"
                         style={{ width: `${percentSold}%` }}
                       />
                     </div>
@@ -281,7 +237,7 @@ export const OrganizerDashboardSection: React.FC<OrganizerDashboardSectionProps>
       <div className="p-5 sm:p-6 rounded-3xl bg-[#170a1c] border border-[#32133b] space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Activity className="w-4 h-4 text-[#f43f5e]" />
+            <Activity className="w-4 h-4 text-[#8b7bff]" />
             <h3 className="text-base font-display font-bold text-white">Recent Activity</h3>
           </div>
           <span className="text-xs text-[#9f8fa9]">Live event management logs</span>

@@ -8,7 +8,7 @@ interface TicketTierModalProps {
   eventId: string;
   eventTitle: string;
   onClose: () => void;
-  onSaveTier: (tier: OrganizerTicketTier) => void;
+  onSaveTier: (tier: OrganizerTicketTier) => boolean | Promise<boolean>;
 }
 
 export const TicketTierModal: React.FC<TicketTierModalProps> = ({
@@ -22,12 +22,12 @@ export const TicketTierModal: React.FC<TicketTierModalProps> = ({
 
   const [name, setName] = useState(tier?.name || '');
   const [description, setDescription] = useState(tier?.description || '');
-  const [priceMWK, setPriceMWK] = useState<number>(tier?.priceMWK || 20000);
-  const [totalQuantity, setTotalQuantity] = useState<number>(tier?.totalQuantity || 300);
+  const [priceMWK, setPriceMWK] = useState<number>(tier?.priceMWK || 0);
+  const [totalQuantity, setTotalQuantity] = useState<number>(tier?.totalQuantity || 0);
   const [minPerOrder, setMinPerOrder] = useState<number>(tier?.minPerOrder || 1);
   const [maxPerOrder, setMaxPerOrder] = useState<number>(tier?.maxPerOrder || 6);
-  const [salesStartDate, setSalesStartDate] = useState(tier?.salesStartDate || '2026-11-01');
-  const [salesEndDate, setSalesEndDate] = useState(tier?.salesEndDate || '2026-12-31');
+  const [salesStartDate, setSalesStartDate] = useState(tier?.salesStartDate || '');
+  const [salesEndDate, setSalesEndDate] = useState(tier?.salesEndDate || '');
   const [active, setActive] = useState<boolean>(tier ? tier.active : true);
 
   const [errorNotice, setErrorNotice] = useState<string | null>(null);
@@ -36,10 +36,14 @@ export const TicketTierModal: React.FC<TicketTierModalProps> = ({
   const soldQuantity = tier?.soldQuantity || 0;
   const reservedQuantity = tier?.reservedQuantity || 0;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
       setErrorNotice('Please provide a ticket tier name');
+      return;
+    }
+    if (priceMWK <= 0 || totalQuantity <= 0 || minPerOrder < 1 || maxPerOrder < minPerOrder) {
+      setErrorNotice('Enter a positive price and quantity with valid per-order limits.');
       return;
     }
     if (totalQuantity < (soldQuantity + reservedQuantity)) {
@@ -64,7 +68,11 @@ export const TicketTierModal: React.FC<TicketTierModalProps> = ({
       active
     };
 
-    onSaveTier(payload);
+    const saved = await onSaveTier(payload);
+    if (!saved) {
+      setErrorNotice('Ticket tier could not be saved. Check the organizer notification for details.');
+      return;
+    }
     onClose();
   };
 
@@ -76,7 +84,7 @@ export const TicketTierModal: React.FC<TicketTierModalProps> = ({
       >
         <div className="p-5 sm:p-6 border-b border-[#2d1235] bg-[#1a0920] flex items-center justify-between gap-4 shrink-0">
           <div>
-            <span className="text-[10px] uppercase font-bold tracking-wider text-[#f472b6]">
+            <span className="text-[10px] uppercase font-bold tracking-wider text-[#a78bfa]">
               Ticket Type Management · {eventTitle}
             </span>
             <h2 className="text-lg sm:text-xl font-display font-bold text-white mt-0.5">
@@ -127,7 +135,7 @@ export const TicketTierModal: React.FC<TicketTierModalProps> = ({
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. VIP Golden Pass, Early Bird Standing"
               required
-              className="w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-white focus:outline-none focus:border-[#f43f5e]"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-white focus:outline-none focus:border-[#8b7bff]"
             />
           </div>
 
@@ -138,7 +146,7 @@ export const TicketTierModal: React.FC<TicketTierModalProps> = ({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="e.g. Express gate entry, access to raised VIP deck"
-              className="w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-white focus:outline-none focus:border-[#f43f5e]"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-white focus:outline-none focus:border-[#8b7bff]"
             />
           </div>
 
@@ -220,7 +228,7 @@ export const TicketTierModal: React.FC<TicketTierModalProps> = ({
                 type="checkbox"
                 checked={active}
                 onChange={(e) => setActive(e.target.checked)}
-                className="rounded text-[#f43f5e] focus:ring-[#f43f5e] w-4 h-4 cursor-pointer"
+                className="rounded text-[#8b7bff] focus:ring-[#8b7bff] w-4 h-4 cursor-pointer"
               />
               <div>
                 <span className="text-white font-semibold block">Tier is Active for Customer Purchase</span>

@@ -36,7 +36,7 @@ export const OrganizerTicketsSection: React.FC<OrganizerTicketsSectionProps> = (
       {/* Header */}
       <div className="p-5 sm:p-6 rounded-3xl bg-[#16081c] border border-[#32133b] shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <span className="text-[10px] uppercase font-bold tracking-wider text-[#f472b6]">
+          <span className="text-[10px] uppercase font-bold tracking-wider text-[#a78bfa]">
             Inventory & Tier Pricing
           </span>
           <h2 className="text-xl sm:text-2xl font-display font-bold text-white mt-0.5">
@@ -67,7 +67,7 @@ export const OrganizerTicketsSection: React.FC<OrganizerTicketsSectionProps> = (
             onClick={() => setSelectedEventId(evt.id)}
             className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer border ${
               activeEvent?.id === evt.id
-                ? 'bg-[#831843] text-white border-[#f43f5e] shadow-md'
+                ? 'bg-[#3e347d] text-white border-[#8b7bff] shadow-md'
                 : 'bg-[#1a0820] text-[#a997b2] border-[#311339] hover:border-[#4d1f5b]'
             }`}
           >
@@ -151,7 +151,7 @@ export const OrganizerTicketsSection: React.FC<OrganizerTicketsSectionProps> = (
 
                     <div className="w-full h-2 rounded-full bg-[#2a1032] overflow-hidden">
                       <div 
-                        className="h-full bg-gradient-to-r from-[#9f1239] via-[#831843] to-[#c084fc] rounded-full"
+                        className="h-full bg-gradient-to-r from-[#4c1d95] via-[#3e347d] to-[#c084fc] rounded-full"
                         style={{ width: `${percentSold}%` }}
                       />
                     </div>

@@ -6,7 +6,7 @@ import { Button } from '../common/Button';
 interface VenueManagerModalProps {
   venues: Venue[];
   onClose: () => void;
-  onAddVenue: (venue: Venue) => void;
+  onAddVenue: (venue: Venue) => boolean | Promise<boolean>;
 }
 
 export const VenueManagerModal: React.FC<VenueManagerModalProps> = ({
@@ -15,15 +15,17 @@ export const VenueManagerModal: React.FC<VenueManagerModalProps> = ({
   onAddVenue
 }) => {
   const [isAdding, setIsAdding] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [name, setName] = useState('');
-  const [city, setCity] = useState('Blantyre');
+  const [city, setCity] = useState('');
   const [address, setAddress] = useState('');
-  const [capacity, setCapacity] = useState(500);
+  const [capacity, setCapacity] = useState(0);
   const [contactPerson, setContactPerson] = useState('');
   const [contactPhone, setContactPhone] = useState('');
   const [isOnline, setIsOnline] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
 
@@ -38,7 +40,14 @@ export const VenueManagerModal: React.FC<VenueManagerModalProps> = ({
       isOnline
     };
 
-    onAddVenue(newVenue);
+    setIsSubmitting(true);
+    setSaveError(null);
+    const saved = await onAddVenue(newVenue);
+    setIsSubmitting(false);
+    if (!saved) {
+      setSaveError('Venue could not be saved. Check the organizer notification for details.');
+      return;
+    }
     setIsAdding(false);
     setName('');
     setAddress('');
@@ -52,7 +61,7 @@ export const VenueManagerModal: React.FC<VenueManagerModalProps> = ({
       >
         <div className="p-5 sm:p-6 border-b border-[#2d1235] bg-[#1a0920] flex items-center justify-between gap-4 shrink-0">
           <div>
-            <span className="text-[10px] uppercase font-bold tracking-wider text-[#f472b6]">
+            <span className="text-[10px] uppercase font-bold tracking-wider text-[#a78bfa]">
               Organizer Workspace
             </span>
             <h2 className="text-lg sm:text-xl font-display font-bold text-white mt-0.5">
@@ -91,7 +100,7 @@ export const VenueManagerModal: React.FC<VenueManagerModalProps> = ({
                         )}
                       </div>
                       <p className="text-[#baa7c3] flex items-center gap-1.5">
-                        <MapPin className="w-3.5 h-3.5 text-[#f43f5e]" />
+                        <MapPin className="w-3.5 h-3.5 text-[#8b7bff]" />
                         <span>{venue.address}, {venue.city}</span>
                       </p>
                       <p className="text-[11px] text-[#8c7895] flex items-center gap-3 pt-1">
@@ -117,6 +126,8 @@ export const VenueManagerModal: React.FC<VenueManagerModalProps> = ({
                 </button>
               </div>
 
+              {saveError && <p role="alert" className="text-xs text-rose-300">{saveError}</p>}
+
               <div>
                 <label className="block text-[#a491ae] mb-1 font-medium">Venue Name *</label>
                 <input
@@ -135,8 +146,10 @@ export const VenueManagerModal: React.FC<VenueManagerModalProps> = ({
                   <select
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
+                    required
                     className="w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-white"
                   >
+                    <option value="">Select city</option>
                     <option value="Blantyre">Blantyre</option>
                     <option value="Lilongwe">Lilongwe</option>
                     <option value="Mzuzu">Mzuzu</option>
@@ -152,6 +165,8 @@ export const VenueManagerModal: React.FC<VenueManagerModalProps> = ({
                     type="number"
                     value={capacity}
                     onChange={(e) => setCapacity(Number(e.target.value))}
+                    min={1}
+                    required
                     className="w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-white font-mono"
                   />
                 </div>
@@ -196,7 +211,7 @@ export const VenueManagerModal: React.FC<VenueManagerModalProps> = ({
                 <Button variant="outline" size="sm" type="button" onClick={() => setIsAdding(false)}>
                   Cancel
                 </Button>
-                <Button variant="primary" size="sm" type="submit">
+                <Button variant="primary" size="sm" type="submit" isLoading={isSubmitting} disabled={isSubmitting}>
                   Save Venue
                 </Button>
               </div>

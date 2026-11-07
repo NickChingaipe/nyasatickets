@@ -9,7 +9,6 @@ import {
   Eye, 
   AlertTriangle, 
   FileCheck, 
-  Sparkles, 
   Tag, 
   Users, 
   ShieldAlert, 
@@ -51,6 +50,7 @@ export const AdminEventModerationSection: React.FC<AdminEventModerationSectionPr
   const [rejectionTarget, setRejectionTarget] = useState<OrganizerEvent | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
   const [rejectionError, setRejectionError] = useState('');
+  const [actionError, setActionError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Filter events
@@ -70,12 +70,17 @@ export const AdminEventModerationSection: React.FC<AdminEventModerationSectionPr
   const handleApprove = async (event: OrganizerEvent) => {
     setIsSubmitting(true);
     try {
-      await supabaseService.reviewEvent(event.id, 'approved', 'Approved by NyasaTickets Admin');
-      await supabaseService.publishEvent(event.id);
+      const reviewResult = await supabaseService.reviewEvent(event.id, 'approved', 'Approved by NyasaTickets Admin');
+      if (!reviewResult.success) throw new Error(reviewResult.error || 'Event review failed.');
+      const publishResult = await supabaseService.publishEvent(event.id);
+      if (!publishResult.success) throw new Error(publishResult.error || 'Event publishing failed.');
+      setActionError('');
       onApproveEvent(event.id, 'Event approved and published to live marketplace.');
       if (selectedEvent?.id === event.id) {
         setSelectedEvent(null);
       }
+    } catch (error) {
+      setActionError(error instanceof Error ? error.message : 'Event approval failed.');
     } finally {
       setIsSubmitting(false);
     }
@@ -91,7 +96,9 @@ export const AdminEventModerationSection: React.FC<AdminEventModerationSectionPr
 
     setIsSubmitting(true);
     try {
-      await supabaseService.reviewEvent(rejectionTarget.id, 'rejected', rejectionReason.trim());
+      const result = await supabaseService.reviewEvent(rejectionTarget.id, 'rejected', rejectionReason.trim());
+      if (!result.success) throw new Error(result.error || 'Event rejection failed.');
+      setActionError('');
       onRejectEvent(rejectionTarget.id, rejectionReason.trim());
       setRejectionTarget(null);
       setRejectionReason('');
@@ -99,6 +106,8 @@ export const AdminEventModerationSection: React.FC<AdminEventModerationSectionPr
       if (selectedEvent?.id === rejectionTarget.id) {
         setSelectedEvent(null);
       }
+    } catch (error) {
+      setActionError(error instanceof Error ? error.message : 'Event rejection failed.');
     } finally {
       setIsSubmitting(false);
     }
@@ -123,11 +132,12 @@ export const AdminEventModerationSection: React.FC<AdminEventModerationSectionPr
 
   return (
     <div className="space-y-6">
+        {actionError && <p role="alert" className="rounded-xl border border-rose-800 bg-rose-950/40 px-4 py-3 text-sm text-rose-200">{actionError}</p>}
       {/* 1. Header & Section Switcher */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#2d1237]">
         <div>
           <h2 className="text-xl sm:text-2xl font-display font-bold text-white flex items-center gap-2.5">
-            <FileCheck className="w-6 h-6 text-[#f43f5e]" />
+            <FileCheck className="w-6 h-6 text-[#8b7bff]" />
             Event Moderation & Compliance
           </h2>
           <p className="text-xs sm:text-sm text-[#9f8ea7] mt-1">
@@ -141,13 +151,13 @@ export const AdminEventModerationSection: React.FC<AdminEventModerationSectionPr
             onClick={() => setActiveTab('queue')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-2 ${
               activeTab === 'queue'
-                ? 'bg-[#831843] text-white shadow-md'
+                ? 'bg-[#3e347d] text-white shadow-md'
                 : 'text-[#9c89a7] hover:text-white'
             }`}
           >
             <span>Moderation Queue</span>
             {pendingEventsCount > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-[#f43f5e] text-white font-mono">
+              <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-[#8b7bff] text-white font-mono">
                 {pendingEventsCount}
               </span>
             )}
@@ -157,7 +167,7 @@ export const AdminEventModerationSection: React.FC<AdminEventModerationSectionPr
             onClick={() => setActiveTab('history')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
               activeTab === 'history'
-                ? 'bg-[#831843] text-white shadow-md'
+                ? 'bg-[#3e347d] text-white shadow-md'
                 : 'text-[#9c89a7] hover:text-white'
             }`}
           >
@@ -178,7 +188,7 @@ export const AdminEventModerationSection: React.FC<AdminEventModerationSectionPr
                 placeholder="Search events by title, venue, or city..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 rounded-xl bg-[#180a1e] border border-[#35143f] text-white text-xs placeholder-[#7c6987] focus:outline-none focus:border-[#f43f5e]"
+                className="w-full pl-9 pr-4 py-2 rounded-xl bg-[#180a1e] border border-[#35143f] text-white text-xs placeholder-[#7c6987] focus:outline-none focus:border-[#8b7bff]"
               />
             </div>
 
@@ -248,7 +258,7 @@ export const AdminEventModerationSection: React.FC<AdminEventModerationSectionPr
                     <div className="p-5 space-y-3">
                       <div className="grid grid-cols-2 gap-2 text-xs text-[#cebdd9] bg-[#1d0b23] p-3 rounded-2xl border border-[#33133c]">
                         <div className="flex items-center gap-2">
-                          <Calendar className="w-3.5 h-3.5 text-[#f43f5e] shrink-0" />
+                          <Calendar className="w-3.5 h-3.5 text-[#8b7bff] shrink-0" />
                           <span className="truncate">{event.startDate} • {event.startTime}</span>
                         </div>
                         <div className="flex items-center gap-2">
@@ -256,7 +266,7 @@ export const AdminEventModerationSection: React.FC<AdminEventModerationSectionPr
                           <span className="truncate">{event.venueName}, {event.city}</span>
                         </div>
                         <div className="flex items-center gap-2 pt-1 border-t border-[#2a0e30]">
-                          <Users className="w-3.5 h-3.5 text-pink-400 shrink-0" />
+                          <Users className="w-3.5 h-3.5 text-violet-400 shrink-0" />
                           <span>Venue Cap: <strong>{event.capacity.toLocaleString()}</strong></span>
                         </div>
                         <div className="flex items-center gap-2 pt-1 border-t border-[#2a0e30]">
@@ -442,7 +452,7 @@ export const AdminEventModerationSection: React.FC<AdminEventModerationSectionPr
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                  <Tag className="w-4 h-4 text-[#f43f5e]" />
+                  <Tag className="w-4 h-4 text-[#8b7bff]" />
                   Configured Ticket Tiers ({selectedEvent.tiers.length})
                 </span>
                 <span className="text-xs text-[#a28fa8] font-mono">
@@ -462,7 +472,7 @@ export const AdminEventModerationSection: React.FC<AdminEventModerationSectionPr
                     </div>
 
                     <div className="text-right shrink-0">
-                      <p className="font-mono font-bold text-[#f43f5e] text-sm">
+                      <p className="font-mono font-bold text-[#8b7bff] text-sm">
                         MWK {tier.priceMWK.toLocaleString()}
                       </p>
                       <p className="text-[10px] text-[#8e7a96]">
@@ -541,7 +551,7 @@ export const AdminEventModerationSection: React.FC<AdminEventModerationSectionPr
             </div>
 
             <p className="text-xs text-[#cebdd9]">
-              Please state why this event cannot be approved in its current state (e.g. venue permit missing, pricing discrepancy, or quota exceeds venue fire limit). Organiser will be notified via Supabase RPC <code className="text-[#f43f5e] font-mono">review_event</code>.
+              Please state why this event cannot be approved in its current state (e.g. venue permit missing, pricing discrepancy, or quota exceeds venue fire limit). Organiser will be notified via Supabase RPC <code className="text-[#8b7bff] font-mono">review_event</code>.
             </p>
 
             <div className="space-y-1.5">

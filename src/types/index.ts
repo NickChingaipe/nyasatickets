@@ -56,7 +56,6 @@ export interface EventItem {
 export interface CategoryInfo {
   id: EventCategory;
   name: string;
-  count: number;
   iconName: string;
   description: string;
 }
@@ -156,6 +155,7 @@ export interface OrganizerEvent {
   city: string;
   venueId: string;
   venueName: string;
+  venueAddress?: string;
   startDate: string;
   startTime: string;
   endDate: string;
@@ -173,7 +173,7 @@ export interface OrganizerEvent {
   updatedAt: string;
 }
 
-export type ApplicationStatus = 'submitted' | 'under_review' | 'approved' | 'rejected';
+export type ApplicationStatus = 'draft' | 'submitted' | 'under_review' | 'approved' | 'rejected';
 
 export interface OrganizerApplication {
   id?: string;

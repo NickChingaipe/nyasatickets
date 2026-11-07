@@ -114,7 +114,7 @@ export const EventDetailsModal: React.FC<EventDetailsModalProps> = ({
               <button
                 onClick={() => onToggleSave?.(event.id)}
                 className={`w-9 h-9 rounded-full flex items-center justify-center backdrop-blur-md transition-colors cursor-pointer border border-[#3e164d] ${
-                  isSaved ? 'bg-[#f43f5e] text-white' : 'bg-[#120716]/80 text-[#d3bedc] hover:text-white'
+                  isSaved ? 'bg-[#8b7bff] text-white' : 'bg-[#120716]/80 text-[#d3bedc] hover:text-white'
                 }`}
                 title="Save event"
               >
@@ -147,7 +147,7 @@ export const EventDetailsModal: React.FC<EventDetailsModalProps> = ({
           {/* Quick Date, Venue, Organizer Strip */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3.5 rounded-2xl bg-[#1c0b24] border border-[#32133c]">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-[#2e1038] border border-[#4d1a5e] flex items-center justify-center text-[#f472b6] shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-[#2e1038] border border-[#4d1a5e] flex items-center justify-center text-[#a78bfa] shrink-0">
                 <Calendar className="w-4 h-4" />
               </div>
               <div className="min-w-0">
@@ -158,7 +158,7 @@ export const EventDetailsModal: React.FC<EventDetailsModalProps> = ({
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-[#2e1038] border border-[#4d1a5e] flex items-center justify-center text-[#f43f5e] shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-[#2e1038] border border-[#4d1a5e] flex items-center justify-center text-[#8b7bff] shrink-0">
                 <MapPin className="w-4 h-4" />
               </div>
               <div className="min-w-0">
@@ -204,7 +204,7 @@ export const EventDetailsModal: React.FC<EventDetailsModalProps> = ({
                     onClick={() => setSelectedTierId(tier.id)}
                     className={`p-3.5 rounded-xl border transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
                       isSelected
-                        ? 'bg-gradient-to-r from-[#32103d] to-[#220a2a] border-[#f43f5e] shadow-md shadow-[#831843]/15'
+                        ? 'bg-gradient-to-r from-[#32103d] to-[#220a2a] border-[#8b7bff] shadow-md shadow-[#3e347d]/15'
                         : 'bg-[#18091e] border-[#2e1236] hover:border-[#4b1d58]'
                     }`}
                   >
@@ -219,7 +219,7 @@ export const EventDetailsModal: React.FC<EventDetailsModalProps> = ({
                       <div className="flex flex-wrap gap-x-3 gap-y-1 pt-1 text-[11px] text-[#d6bfe3]">
                         {tier.perks.map((perk, i) => (
                           <span key={i} className="flex items-center gap-1">
-                            <Check className="w-3 h-3 text-[#f43f5e]" />
+                            <Check className="w-3 h-3 text-[#8b7bff]" />
                             {perk}
                           </span>
                         ))}
@@ -272,11 +272,11 @@ export const EventDetailsModal: React.FC<EventDetailsModalProps> = ({
                 onClick={() => setSelectedPayment('airtel')}
                 className={`px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-colors cursor-pointer flex items-center gap-1.5 ${
                   selectedPayment === 'airtel'
-                    ? 'bg-[#831843] text-white border-[#f43f5e]'
+                    ? 'bg-[#3e347d] text-white border-[#8b7bff]'
                     : 'bg-[#230d2d] text-[#b5a2bf] border-[#3d174b] hover:text-white'
                 }`}
               >
-                <Smartphone className="w-3.5 h-3.5 text-[#f43f5e]" />
+                <Smartphone className="w-3.5 h-3.5 text-[#8b7bff]" />
                 <span>Airtel Money</span>
               </button>
 

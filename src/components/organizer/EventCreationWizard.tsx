@@ -10,7 +10,6 @@ import {
   FileText, 
   Ticket, 
   AlertCircle, 
-  Sparkles,
   DollarSign,
   Plus,
   Trash2,
@@ -23,60 +22,46 @@ import { Badge } from '../common/Badge';
 
 interface EventCreationWizardProps {
   venues: Venue[];
+  initialEvent?: OrganizerEvent;
   onClose: () => void;
-  onSubmitEvent: (event: Partial<OrganizerEvent>, submitForApproval: boolean) => void;
+  onSubmitEvent: (event: Partial<OrganizerEvent>, submitForApproval: boolean) => boolean | Promise<boolean>;
 }
 
 export const EventCreationWizard: React.FC<EventCreationWizardProps> = ({
   venues,
+  initialEvent,
   onClose,
   onSubmitEvent
 }) => {
   const [currentStep, setCurrentStep] = useState<number>(1);
 
   // Step 1: Basic Info
-  const [title, setTitle] = useState('');
-  const [category, setCategory] = useState<EventCategory>('music');
-  const [city, setCity] = useState('Lilongwe');
-  const [ageRestriction, setAgeRestriction] = useState('All Ages Welcome');
+  const [title, setTitle] = useState(initialEvent?.title || '');
+  const [category, setCategory] = useState<EventCategory>(initialEvent?.category || 'music');
+  const [city, setCity] = useState(initialEvent?.city || '');
+  const [ageRestriction, setAgeRestriction] = useState(initialEvent?.ageRestriction || '');
 
   // Step 2: Description & Media
-  const [tagline, setTagline] = useState('');
-  const [description, setDescription] = useState('');
-  const [selectedImage, setSelectedImage] = useState('/src/assets/images/event_blantyre_jazz_1793689057469.jpg');
+  const [tagline, setTagline] = useState(initialEvent?.tagline || '');
+  const [description, setDescription] = useState(initialEvent?.description || '');
+  const [selectedImage, setSelectedImage] = useState(initialEvent?.image || '');
 
   // Step 3: Date & Time
-  const [startDate, setStartDate] = useState('');
-  const [startTime, setStartTime] = useState('18:00');
-  const [endDate, setEndDate] = useState('');
-  const [endTime, setEndTime] = useState('23:00');
-  const [doorsOpen, setDoorsOpen] = useState('17:00 CAT');
+  const [startDate, setStartDate] = useState(initialEvent?.startDate || '');
+  const [startTime, setStartTime] = useState(initialEvent?.startTime || '');
+  const [endDate, setEndDate] = useState(initialEvent?.endDate || '');
+  const [endTime, setEndTime] = useState(initialEvent?.endTime || '');
+  const [doorsOpen, setDoorsOpen] = useState(initialEvent?.doorsOpen || '');
 
   // Step 4: Venue Details
-  const [selectedVenueId, setSelectedVenueId] = useState<string>(venues[0]?.id || '');
+  const [selectedVenueId, setSelectedVenueId] = useState<string>(initialEvent?.venueId || venues[0]?.id || '');
   const [customVenueName, setCustomVenueName] = useState('');
   const [customAddress, setCustomAddress] = useState('');
-  const [venueCapacity, setVenueCapacity] = useState<number>(500);
+  const [venueCapacity, setVenueCapacity] = useState<number>(initialEvent?.capacity || 0);
 
   // Step 5: Ticket Tiers
-  const [tiers, setTiers] = useState<OrganizerTicketTier[]>([
-    {
-      id: `tier-new-1`,
-      eventId: 'temp-event',
-      name: 'General Admission',
-      description: 'Standard event access.',
-      priceMWK: 15000,
-      currency: 'MWK',
-      totalQuantity: 300,
-      soldQuantity: 0,
-      reservedQuantity: 0,
-      minPerOrder: 1,
-      maxPerOrder: 6,
-      salesStartDate: '2026-11-01',
-      salesEndDate: '2026-12-31',
-      active: true
-    }
-  ]);
+  const [tiers, setTiers] = useState<OrganizerTicketTier[]>(initialEvent?.tiers || []);
+  const [isSaving, setIsSaving] = useState(false);
 
   const [validationError, setValidationError] = useState<string | null>(null);
 
@@ -90,6 +75,10 @@ export const EventCreationWizard: React.FC<EventCreationWizardProps> = ({
         setValidationError('Please enter an event title');
         return;
       }
+      if (!city) {
+        setValidationError('Please select an event city.');
+        return;
+      }
     } else if (currentStep === 2) {
       if (!tagline.trim() || !description.trim()) {
         setValidationError('Please provide both a short tagline and a full description');
@@ -98,6 +87,11 @@ export const EventCreationWizard: React.FC<EventCreationWizardProps> = ({
     } else if (currentStep === 3) {
       if (!startDate) {
         setValidationError('Please select the event start date');
+        return;
+      }
+    } else if (currentStep === 4) {
+      if (!selectedVenueId || (selectedVenueId === 'custom' && (!customVenueName.trim() || !customAddress.trim()))) {
+        setValidationError('Select a venue or provide a custom venue name and address.');
         return;
       }
     } else if (currentStep === 5) {
@@ -111,19 +105,19 @@ export const EventCreationWizard: React.FC<EventCreationWizardProps> = ({
 
   const handleAddTier = () => {
     const newTier: OrganizerTicketTier = {
-      id: `tier-${Date.now()}`,
-      eventId: 'temp-event',
-      name: 'VIP Experience Pass',
-      description: 'Priority gate entry and dedicated lounge access.',
-      priceMWK: 35000,
+      id: '',
+      eventId: initialEvent?.id || '',
+      name: '',
+      description: '',
+      priceMWK: 0,
       currency: 'MWK',
-      totalQuantity: 100,
+      totalQuantity: 0,
       soldQuantity: 0,
       reservedQuantity: 0,
       minPerOrder: 1,
       maxPerOrder: 4,
-      salesStartDate: startDate || '2026-11-01',
-      salesEndDate: endDate || startDate || '2026-12-31',
+      salesStartDate: startDate,
+      salesEndDate: endDate,
       active: true
     };
     setTiers([...tiers, newTier]);
@@ -139,8 +133,12 @@ export const EventCreationWizard: React.FC<EventCreationWizardProps> = ({
     setTiers(updated);
   };
 
-  const handleFinalSubmit = (submitForApproval: boolean) => {
+  const handleFinalSubmit = async (submitForApproval: boolean) => {
     const venueName = selectedVenueId === 'custom' ? customVenueName : selectedVenue?.name || 'Selected Venue';
+    if (tiers.some(tier => !tier.name.trim() || tier.priceMWK <= 0 || tier.totalQuantity <= 0 || tier.maxPerOrder < tier.minPerOrder)) {
+      setValidationError('Each ticket tier needs a name, positive price and quantity, and valid order limits.');
+      return;
+    }
     const totalCap = tiers.reduce((sum, t) => sum + Number(t.totalQuantity || 0), 0) || venueCapacity;
 
     const eventPayload: Partial<OrganizerEvent> = {
@@ -151,7 +149,9 @@ export const EventCreationWizard: React.FC<EventCreationWizardProps> = ({
       city,
       venueId: selectedVenueId,
       venueName,
-      startDate: startDate || '2026-12-01',
+      id: initialEvent?.id,
+      venueAddress: selectedVenueId === 'custom' ? customAddress : selectedVenue?.address,
+      startDate,
       startTime,
       endDate: endDate || startDate,
       endTime,
@@ -168,8 +168,18 @@ export const EventCreationWizard: React.FC<EventCreationWizardProps> = ({
       tiers
     };
 
-    onSubmitEvent(eventPayload, submitForApproval);
-    onClose();
+    setIsSaving(true);
+    setValidationError(null);
+    try {
+      const saved = await onSubmitEvent(eventPayload, submitForApproval);
+      if (!saved) {
+        setValidationError('The event could not be saved. Check the organizer notification for details.');
+        return;
+      }
+      onClose();
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const steps = [
@@ -190,7 +200,7 @@ export const EventCreationWizard: React.FC<EventCreationWizardProps> = ({
         {/* Wizard Header */}
         <div className="p-5 sm:p-6 border-b border-[#2d1235] bg-[#1a0920] flex items-center justify-between gap-4 shrink-0">
           <div>
-            <span className="text-[10px] uppercase font-bold tracking-wider text-[#f472b6]">
+            <span className="text-[10px] uppercase font-bold tracking-wider text-[#a78bfa]">
               Organizer Workspace · Step {currentStep} of 6
             </span>
             <h2 className="text-lg sm:text-xl font-display font-bold text-white mt-0.5">
@@ -214,7 +224,7 @@ export const EventCreationWizard: React.FC<EventCreationWizardProps> = ({
               key={s.number}
               className={`flex items-center gap-1.5 shrink-0 ${
                 currentStep === s.number 
-                  ? 'text-[#f472b6] font-semibold' 
+                  ? 'text-[#a78bfa] font-semibold' 
                   : currentStep > s.number 
                     ? 'text-emerald-400' 
                     : 'text-[#6e5d77]'
@@ -222,7 +232,7 @@ export const EventCreationWizard: React.FC<EventCreationWizardProps> = ({
             >
               <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
                 currentStep === s.number 
-                  ? 'bg-[#831843] text-white ring-2 ring-[#f43f5e]' 
+                  ? 'bg-[#3e347d] text-white ring-2 ring-[#8b7bff]' 
                   : currentStep > s.number 
                     ? 'bg-emerald-950 text-emerald-300' 
                     : 'bg-[#220d29] text-[#7d6c85]'
@@ -259,7 +269,7 @@ export const EventCreationWizard: React.FC<EventCreationWizardProps> = ({
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g. Blantyre Food & Music Fiesta 2026"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-white focus:outline-none focus:border-[#f43f5e]"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-white focus:outline-none focus:border-[#8b7bff]"
                 />
               </div>
 
@@ -269,7 +279,7 @@ export const EventCreationWizard: React.FC<EventCreationWizardProps> = ({
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value as any)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-white focus:outline-none focus:border-[#f43f5e]"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-white focus:outline-none focus:border-[#8b7bff]"
                   >
                     <option value="music">Music & Concerts</option>
                     <option value="cultural">Cultural & Festivals</option>
@@ -285,7 +295,7 @@ export const EventCreationWizard: React.FC<EventCreationWizardProps> = ({
                   <select
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-white focus:outline-none focus:border-[#f43f5e]"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-white focus:outline-none focus:border-[#8b7bff]"
                   >
                     <option value="Lilongwe">Lilongwe</option>
                     <option value="Blantyre">Blantyre</option>
@@ -302,7 +312,7 @@ export const EventCreationWizard: React.FC<EventCreationWizardProps> = ({
                 <select
                   value={ageRestriction}
                   onChange={(e) => setAgeRestriction(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-white focus:outline-none focus:border-[#f43f5e]"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-white focus:outline-none focus:border-[#8b7bff]"
                 >
                   <option value="All Ages Welcome">All Ages Welcome</option>
                   <option value="18+ Only">18+ Only (Alcohol served)</option>
@@ -328,7 +338,7 @@ export const EventCreationWizard: React.FC<EventCreationWizardProps> = ({
                   value={tagline}
                   onChange={(e) => setTagline(e.target.value)}
                   placeholder="e.g. A sunset celebration of Malawian acoustic mastery and culinary heritage"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-white focus:outline-none focus:border-[#f43f5e]"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-white focus:outline-none focus:border-[#8b7bff]"
                 />
               </div>
 
@@ -339,35 +349,19 @@ export const EventCreationWizard: React.FC<EventCreationWizardProps> = ({
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Describe the schedule, guest artists, food stalls, transport details, and atmosphere..."
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-white focus:outline-none focus:border-[#f43f5e]"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-white focus:outline-none focus:border-[#8b7bff]"
                 />
               </div>
 
               <div>
-                <label className="block text-[#a491ae] mb-2 font-medium">Select Cover Visual</label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {[
-                    '/src/assets/images/event_blantyre_jazz_1793689057469.jpg',
-                    '/src/assets/images/hero_lake_of_stars_1793689056299.jpg',
-                    '/src/assets/images/event_lilongwe_urban_1793689058032.jpg',
-                    '/src/assets/images/event_sand_music_fest_1793689058956.jpg'
-                  ].map((imgSrc, idx) => (
-                    <div
-                      key={idx}
-                      onClick={() => setSelectedImage(imgSrc)}
-                      className={`relative aspect-[4/3] rounded-xl overflow-hidden cursor-pointer border-2 transition-all ${
-                        selectedImage === imgSrc ? 'border-[#f43f5e] ring-2 ring-[#f43f5e]/40' : 'border-transparent opacity-60 hover:opacity-100'
-                      }`}
-                    >
-                      <img src={imgSrc} alt="Preview" className="w-full h-full object-cover" />
-                      {selectedImage === imgSrc && (
-                        <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-[#f43f5e] flex items-center justify-center text-white">
-                          <Check className="w-3 h-3" />
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                <label className="block text-[#a491ae] mb-1 font-medium">Cover Image URL</label>
+                <input
+                  type="url"
+                  value={selectedImage}
+                  onChange={(e) => setSelectedImage(e.target.value)}
+                  placeholder="https://..."
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-white focus:outline-none focus:border-[#8b7bff]"
+                />
               </div>
             </div>
           )}
@@ -387,7 +381,7 @@ export const EventCreationWizard: React.FC<EventCreationWizardProps> = ({
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-white focus:outline-none focus:border-[#f43f5e]"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-white focus:outline-none focus:border-[#8b7bff]"
                   />
                 </div>
 
@@ -397,7 +391,7 @@ export const EventCreationWizard: React.FC<EventCreationWizardProps> = ({
                     type="time"
                     value={startTime}
                     onChange={(e) => setStartTime(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-white focus:outline-none focus:border-[#f43f5e]"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-white focus:outline-none focus:border-[#8b7bff]"
                   />
                 </div>
               </div>
@@ -409,7 +403,7 @@ export const EventCreationWizard: React.FC<EventCreationWizardProps> = ({
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-white focus:outline-none focus:border-[#f43f5e]"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-white focus:outline-none focus:border-[#8b7bff]"
                   />
                 </div>
 
@@ -419,7 +413,7 @@ export const EventCreationWizard: React.FC<EventCreationWizardProps> = ({
                     type="time"
                     value={endTime}
                     onChange={(e) => setEndTime(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-white focus:outline-none focus:border-[#f43f5e]"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-white focus:outline-none focus:border-[#8b7bff]"
                   />
                 </div>
               </div>
@@ -431,7 +425,7 @@ export const EventCreationWizard: React.FC<EventCreationWizardProps> = ({
                   value={doorsOpen}
                   onChange={(e) => setDoorsOpen(e.target.value)}
                   placeholder="e.g. 17:00 CAT (Turnstiles open 1 hr prior)"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-white focus:outline-none focus:border-[#f43f5e]"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-white focus:outline-none focus:border-[#8b7bff]"
                 />
               </div>
             </div>
@@ -450,7 +444,7 @@ export const EventCreationWizard: React.FC<EventCreationWizardProps> = ({
                 <select
                   value={selectedVenueId}
                   onChange={(e) => setSelectedVenueId(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-white focus:outline-none focus:border-[#f43f5e]"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-white focus:outline-none focus:border-[#8b7bff]"
                 >
                   {venues.map((v) => (
                     <option key={v.id} value={v.id}>
@@ -499,7 +493,7 @@ export const EventCreationWizard: React.FC<EventCreationWizardProps> = ({
                 <div className="p-4 rounded-2xl bg-[#1b0a21] border border-[#301337] space-y-1.5 text-xs text-[#baa7c2]">
                   <p className="font-semibold text-white">{selectedVenue.name}</p>
                   <p>{selectedVenue.address}, {selectedVenue.city}</p>
-                  <div className="flex items-center gap-3 pt-1 text-[11px] text-[#f472b6]">
+                  <div className="flex items-center gap-3 pt-1 text-[11px] text-[#a78bfa]">
                     <span>Capacity: {selectedVenue.capacity.toLocaleString()} guests</span>
                     <span>·</span>
                     <span>Manager: {selectedVenue.contactPerson} ({selectedVenue.contactPhone})</span>
@@ -590,7 +584,7 @@ export const EventCreationWizard: React.FC<EventCreationWizardProps> = ({
                             type="checkbox"
                             checked={tier.active}
                             onChange={(e) => handleUpdateTier(idx, 'active', e.target.checked)}
-                            className="rounded text-[#f43f5e] w-4 h-4"
+                            className="rounded text-[#8b7bff] w-4 h-4"
                           />
                           <span>Tier Active on Launch</span>
                         </label>
@@ -613,7 +607,7 @@ export const EventCreationWizard: React.FC<EventCreationWizardProps> = ({
               <div className="p-4 rounded-2xl bg-[#1b0a21] border border-[#301337] space-y-3">
                 <div className="flex items-start justify-between border-b border-[#2d1235] pb-2">
                   <div>
-                    <span className="text-[10px] uppercase font-bold text-[#f472b6]">{category} · {city}</span>
+                    <span className="text-[10px] uppercase font-bold text-[#a78bfa]">{category} · {city}</span>
                     <h4 className="text-base font-bold text-white">{title || 'Untitled Event'}</h4>
                     <p className="text-[#a491ae] mt-0.5">{tagline}</p>
                   </div>
@@ -632,7 +626,7 @@ export const EventCreationWizard: React.FC<EventCreationWizardProps> = ({
 
               <div className="p-3.5 rounded-xl bg-[#240e2b] border border-[#481c56] text-[#cebeda] text-[11px] leading-relaxed">
                 <p className="font-semibold text-white mb-1">Approval & Compliance Notice:</p>
-                Events submitted for approval are reviewed within 24 hours by NyasaTickets. Organisers can also save as Draft to continue editing later.
+                Submission status and reviewer feedback will appear in the organizer workspace.
               </div>
             </div>
           )}
@@ -646,6 +640,7 @@ export const EventCreationWizard: React.FC<EventCreationWizardProps> = ({
               size="md"
               onClick={() => setCurrentStep(prev => prev - 1)}
               leftIcon={<ArrowLeft className="w-4 h-4" />}
+              disabled={isSaving}
             >
               Previous
             </Button>
@@ -654,6 +649,7 @@ export const EventCreationWizard: React.FC<EventCreationWizardProps> = ({
               variant="ghost"
               size="md"
               onClick={onClose}
+              disabled={isSaving}
             >
               Cancel
             </Button>
@@ -675,6 +671,7 @@ export const EventCreationWizard: React.FC<EventCreationWizardProps> = ({
                   variant="secondary"
                   size="md"
                   onClick={() => handleFinalSubmit(false)}
+                  disabled={isSaving}
                 >
                   Save as Draft
                 </Button>
@@ -683,6 +680,7 @@ export const EventCreationWizard: React.FC<EventCreationWizardProps> = ({
                   size="md"
                   onClick={() => handleFinalSubmit(true)}
                   leftIcon={<Check className="w-4 h-4" />}
+                  isLoading={isSaving}
                 >
                   Submit for Approval
                 </Button>

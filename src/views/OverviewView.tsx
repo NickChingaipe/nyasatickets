@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { 
-  Sparkles, 
+  Landmark, 
   MapPin, 
   Calendar, 
   ArrowRight, 
@@ -10,16 +10,13 @@ import {
   Trophy, 
   Briefcase, 
   Ticket,
-  ChevronRight,
-  TrendingUp,
-  ShieldCheck
+  ChevronRight
 } from 'lucide-react';
 import { EventItem, EventCategory } from '../types';
 import { EVENT_CATEGORIES } from '../data/categories';
 import { EventCard } from '../components/events/EventCard';
 import { SectionHeader } from '../components/common/SectionHeader';
 import { Button } from '../components/common/Button';
-import { Badge } from '../components/common/Badge';
 
 interface OverviewViewProps {
   events: EventItem[];
@@ -43,7 +40,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
 
   const categoryIcons: Record<string, React.ReactNode> = {
     Music: <Music className="w-5 h-5" />,
-    Sparkles: <Sparkles className="w-5 h-5" />,
+    Landmark: <Landmark className="w-5 h-5" />,
     Theater: <Theater className="w-5 h-5" />,
     Wine: <Wine className="w-5 h-5" />,
     Trophy: <Trophy className="w-5 h-5" />,
@@ -51,11 +48,9 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
   };
 
   const cities = [
-    { id: 'all', label: 'All Malawi' },
     { id: 'Lilongwe', label: 'Lilongwe' },
     { id: 'Blantyre', label: 'Blantyre' },
-    { id: 'Mzuzu', label: 'Mzuzu' },
-    { id: 'Mangochi', label: 'Lake Malawi' }
+    { id: 'Mzuzu', label: 'Mzuzu' }
   ];
 
   // Filtered upcoming events
@@ -70,22 +65,13 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
       {/* 1. Welcome Section & Regional Quick Filter */}
       <div className="relative rounded-3xl p-6 sm:p-8 bg-gradient-to-r from-[#200929] via-[#1a0821] to-[#120516] border border-[#3b1747] overflow-hidden shadow-xl">
         {/* Subtle decorative glow */}
-        <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-[#9f1239]/20 blur-3xl pointer-events-none" />
+        <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-[#4c1d95]/20 blur-3xl pointer-events-none" />
         <div className="absolute -bottom-24 -left-24 w-80 h-80 rounded-full bg-[#581c87]/20 blur-3xl pointer-events-none" />
 
         <div className="relative z-10 max-w-2xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#361342]/80 border border-[#5d2273]/80 text-[#f3d9fd] text-xs font-semibold mb-3">
-            <Sparkles className="w-3.5 h-3.5 text-[#f43f5e]" />
-            <span>Moni! Welcome to NyasaTickets</span>
-          </div>
-
           <h1 className="text-2xl sm:text-4xl font-display font-extrabold text-white tracking-tight leading-tight">
-            Discover Malawi's Most <span className="bg-gradient-to-r from-[#fb7185] via-[#f43f5e] to-[#c084fc] bg-clip-text text-transparent">Exciting Live Experiences</span>
+            Discover Malawi's Most <span className="bg-gradient-to-r from-[#c4b5fd] via-[#8b7bff] to-[#c084fc] bg-clip-text text-transparent">Exciting Live Experiences</span>
           </h1>
-
-          <p className="text-sm sm:text-base text-[#b4a0be] mt-2.5 max-w-xl leading-relaxed">
-            From the shores of Lake of Stars to vibrant concerts in Blantyre and Lilongwe. Secure your digital pass instantly via Airtel Money, TNM Mpamba, or card.
-          </p>
 
           {/* City Quick Segmented Filter */}
           <div className="mt-6 flex flex-wrap items-center gap-2">
@@ -93,10 +79,10 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
             {cities.map((city) => (
               <button
                 key={city.id}
-                onClick={() => setSelectedCityQuick(city.id)}
+                onClick={() => setSelectedCityQuick(selectedCityQuick === city.id ? 'all' : city.id)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all cursor-pointer ${
                   selectedCityQuick === city.id
-                    ? 'bg-[#831843] text-white shadow-sm border border-[#f43f5e]'
+                    ? 'bg-[#3e347d] text-white shadow-sm border border-[#8b7bff]'
                     : 'bg-[#250e2d]/80 text-[#baaad1] hover:text-white hover:bg-[#341440] border border-[#431853]'
                 }`}
               >
@@ -112,14 +98,14 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
         <section>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#f43f5e]" />
+              <span className="w-2.5 h-2.5 rounded-full bg-[#8b7bff]" />
               <h2 className="text-lg sm:text-xl font-display font-bold text-white tracking-tight">
                 Featured Spotlight
               </h2>
             </div>
             <button
               onClick={() => onNavigateToDiscover()}
-              className="text-xs font-semibold text-[#f472b6] hover:text-[#fb7185] transition-colors cursor-pointer flex items-center gap-1"
+              className="text-xs font-semibold text-[#a78bfa] hover:text-[#c4b5fd] transition-colors cursor-pointer flex items-center gap-1"
             >
               <span>Explore all</span>
               <ChevronRight className="w-3.5 h-3.5" />
@@ -140,7 +126,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
               <div className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-transparent via-[#19091f]/40 to-[#19091f]" />
 
               <div className="absolute top-4 left-4">
-                <span className="px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider bg-[#831843]/90 text-white border border-[#f43f5e]/40 shadow-lg">
+                <span className="px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider bg-[#3e347d]/90 text-white border border-[#8b7bff]/40 shadow-lg">
                   Headliner Event
                 </span>
               </div>
@@ -150,7 +136,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
             <div className="lg:col-span-5 p-6 sm:p-8 flex flex-col justify-between">
               <div className="space-y-4">
                 {/* Clean Unboxed Metadata */}
-                <div className="flex items-center gap-2 text-xs font-semibold text-[#f472b6]">
+                <div className="flex items-center gap-2 text-xs font-semibold text-[#a78bfa]">
                   <span>{featuredEvent.categoryLabel}</span>
                   <span aria-hidden="true" className="text-[#5b4465]">·</span>
                   <span className="text-[#d8c3e4]">{featuredEvent.city}, Malawi</span>
@@ -167,11 +153,11 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                 {/* Key Event Details */}
                 <div className="space-y-2 pt-2 text-xs text-[#cfbee0]">
                   <div className="flex items-center gap-2.5">
-                    <Calendar className="w-4 h-4 text-[#f43f5e] shrink-0" />
+                    <Calendar className="w-4 h-4 text-[#8b7bff] shrink-0" />
                     <span>{featuredEvent.dateDisplay} ({featuredEvent.timeDisplay})</span>
                   </div>
                   <div className="flex items-center gap-2.5">
-                    <MapPin className="w-4 h-4 text-[#f43f5e] shrink-0" />
+                    <MapPin className="w-4 h-4 text-[#8b7bff] shrink-0" />
                     <span className="truncate">{featuredEvent.venue}</span>
                   </div>
                 </div>
@@ -205,7 +191,6 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
       <section>
         <SectionHeader
           title="Browse by Category"
-          subtitle="Explore live performances, cultural festivals, theatre, and sports across the Warm Heart of Africa"
         />
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
@@ -215,7 +200,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
               onClick={() => onNavigateToDiscover(cat.id)}
               className="p-4 rounded-2xl bg-[#170a1c] hover:bg-[#250e2d] border border-[#2e1335] hover:border-[#602374] text-left transition-all duration-200 cursor-pointer group flex flex-col justify-between h-32 shadow-sm hover:shadow-lg hover:-translate-y-0.5"
             >
-              <div className="w-10 h-10 rounded-xl bg-[#270f2f] group-hover:bg-[#831843] border border-[#481c56] flex items-center justify-center text-[#d7bfe4] group-hover:text-white transition-colors">
+              <div className="w-10 h-10 rounded-xl bg-[#270f2f] group-hover:bg-[#3e347d] border border-[#481c56] flex items-center justify-center text-[#d7bfe4] group-hover:text-white transition-colors">
                 {categoryIcons[cat.iconName] || <Ticket className="w-5 h-5" />}
               </div>
 
@@ -224,7 +209,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                   {cat.name}
                 </p>
                 <span className="text-[11px] text-[#8e7a98] font-mono tabular-nums">
-                  {cat.count} events
+                  {events.filter(event => event.category === cat.id).length} events
                 </span>
               </div>
             </button>
@@ -239,9 +224,6 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
             <h2 className="text-xl sm:text-2xl font-display font-bold text-white tracking-tight">
               Upcoming Live Events
             </h2>
-            <p className="text-xs sm:text-sm text-[#9f8fa9] mt-1">
-              Confirmed dates and ticket tiers available for direct reservation
-            </p>
           </div>
 
           {/* Category Filter Buttons */}
@@ -250,7 +232,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
               onClick={() => setActiveCategoryFilter('all')}
               className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                 activeCategoryFilter === 'all'
-                  ? 'bg-[#831843] text-white shadow-sm'
+                  ? 'bg-[#3e347d] text-white shadow-sm'
                   : 'text-[#a28fa9] hover:text-white'
               }`}
             >
@@ -260,7 +242,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
               onClick={() => setActiveCategoryFilter('music')}
               className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                 activeCategoryFilter === 'music'
-                  ? 'bg-[#831843] text-white shadow-sm'
+                  ? 'bg-[#3e347d] text-white shadow-sm'
                   : 'text-[#a28fa9] hover:text-white'
               }`}
             >
@@ -270,7 +252,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
               onClick={() => setActiveCategoryFilter('cultural')}
               className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                 activeCategoryFilter === 'cultural'
-                  ? 'bg-[#831843] text-white shadow-sm'
+                  ? 'bg-[#3e347d] text-white shadow-sm'
                   : 'text-[#a28fa9] hover:text-white'
               }`}
             >
@@ -280,7 +262,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
               onClick={() => setActiveCategoryFilter('theatre')}
               className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                 activeCategoryFilter === 'theatre'
-                  ? 'bg-[#831843] text-white shadow-sm'
+                  ? 'bg-[#3e347d] text-white shadow-sm'
                   : 'text-[#a28fa9] hover:text-white'
               }`}
             >
@@ -290,7 +272,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
               onClick={() => setActiveCategoryFilter('sports')}
               className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                 activeCategoryFilter === 'sports'
-                  ? 'bg-[#831843] text-white shadow-sm'
+                  ? 'bg-[#3e347d] text-white shadow-sm'
                   : 'text-[#a28fa9] hover:text-white'
               }`}
             >
@@ -316,7 +298,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
             <p className="text-sm text-[#9f8ba8]">No events found in this category for {selectedCityQuick === 'all' ? 'Malawi' : selectedCityQuick}.</p>
             <button 
               onClick={() => { setActiveCategoryFilter('all'); setSelectedCityQuick('all'); }}
-              className="mt-3 text-xs font-semibold text-[#f43f5e] hover:underline cursor-pointer"
+              className="mt-3 text-xs font-semibold text-[#8b7bff] hover:underline cursor-pointer"
             >
               Reset filters
             </button>
@@ -324,38 +306,6 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
         )}
       </section>
 
-      {/* 5. Recommended & Trust Section */}
-      <section className="rounded-3xl p-6 sm:p-8 bg-[#17091e] border border-[#32143b] flex flex-col md:flex-row items-center justify-between gap-6">
-        <div className="space-y-2 max-w-xl">
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#f472b6]">
-            <ShieldCheck className="w-4 h-4 text-emerald-400" />
-            <span>Guaranteed Gate Entry</span>
-          </div>
-          <h3 className="text-lg sm:text-xl font-display font-bold text-white">
-            Official Ticketing Partner for Malawi's Premier Venues
-          </h3>
-          <p className="text-xs sm:text-sm text-[#a491ae] leading-relaxed">
-            All tickets purchased on NyasaTickets feature cryptographically unique QR passes that work seamlessly with gate stewards even in low network areas.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-4 shrink-0">
-          <Button
-            variant="secondary"
-            size="md"
-            onClick={() => onNavigateToDiscover()}
-          >
-            Explore All Events
-          </Button>
-          <Button
-            variant="primary"
-            size="md"
-            onClick={() => onNavigateToDiscover('cultural')}
-          >
-            Lake Festivals
-          </Button>
-        </div>
-      </section>
     </div>
   );
 };

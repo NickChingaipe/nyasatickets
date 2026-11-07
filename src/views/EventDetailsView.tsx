@@ -75,7 +75,7 @@ export const EventDetailsView: React.FC<EventDetailsViewProps> = ({
             onClick={(e) => onToggleSave?.(event.id, e)}
             className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs transition-all cursor-pointer ${
               isSaved
-                ? 'bg-[#831843] border-[#f43f5e] text-white'
+                ? 'bg-[#3e347d] border-[#8b7bff] text-white'
                 : 'bg-[#1b0b21] hover:bg-[#270f2f] border-[#3b1747] text-[#cfbed8] hover:text-white'
             }`}
           >
@@ -100,13 +100,13 @@ export const EventDetailsView: React.FC<EventDetailsViewProps> = ({
 
           {/* Top Floating Category & Age Badge */}
           <div className="absolute top-4 left-4 sm:top-6 sm:left-6 flex items-center gap-2 flex-wrap">
-            <span className="px-3 py-1 rounded-xl text-xs font-bold uppercase tracking-wider bg-[#831843]/90 text-white border border-[#f43f5e]/40 shadow-lg backdrop-blur-md">
+            <span className="px-3 py-1 rounded-xl text-xs font-bold uppercase tracking-wider bg-[#3e347d]/90 text-white border border-[#8b7bff]/40 shadow-lg backdrop-blur-md">
               {event.categoryLabel}
             </span>
 
             {event.ageRestriction && (
               <span className="px-3 py-1 rounded-xl text-xs font-semibold bg-[#1a0822]/90 text-[#e9d5ff] border border-[#581c87]/70 shadow-lg backdrop-blur-md flex items-center gap-1.5">
-                <AlertCircle className="w-3.5 h-3.5 text-[#f472b6]" />
+                <AlertCircle className="w-3.5 h-3.5 text-[#a78bfa]" />
                 {event.ageRestriction}
               </span>
             )}
@@ -127,7 +127,7 @@ export const EventDetailsView: React.FC<EventDetailsViewProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-5 sm:p-6 bg-[#140718] border-t border-[#290e2f]">
           {/* Date */}
           <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#280e30] border border-[#481c56] flex items-center justify-center text-[#f43f5e] shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-[#280e30] border border-[#481c56] flex items-center justify-center text-[#8b7bff] shrink-0">
               <Calendar className="w-5 h-5" />
             </div>
             <div>
@@ -139,7 +139,7 @@ export const EventDetailsView: React.FC<EventDetailsViewProps> = ({
 
           {/* Venue & Location */}
           <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#280e30] border border-[#481c56] flex items-center justify-center text-[#f43f5e] shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-[#280e30] border border-[#481c56] flex items-center justify-center text-[#8b7bff] shrink-0">
               <MapPin className="w-5 h-5" />
             </div>
             <div>
@@ -194,7 +194,7 @@ export const EventDetailsView: React.FC<EventDetailsViewProps> = ({
             <section className="p-6 sm:p-7 rounded-3xl bg-[#170a1c] border border-[#301337] space-y-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg sm:text-xl font-display font-bold text-white tracking-tight flex items-center gap-2">
-                  <Users className="w-5 h-5 text-[#f43f5e]" />
+                  <Users className="w-5 h-5 text-[#8b7bff]" />
                   <span>Headliners & Featured Artists</span>
                 </h2>
                 <span className="text-xs text-[#9f8ca7] font-medium font-mono tabular-nums">
@@ -208,7 +208,7 @@ export const EventDetailsView: React.FC<EventDetailsViewProps> = ({
                     key={idx}
                     className="p-3 rounded-xl bg-[#200d27] border border-[#35143e] flex items-center gap-2 text-xs font-semibold text-white"
                   >
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#f43f5e]" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#8b7bff]" />
                     <span className="truncate">{artist}</span>
                   </div>
                 ))}
@@ -219,7 +219,7 @@ export const EventDetailsView: React.FC<EventDetailsViewProps> = ({
           {/* Event Terms & Conditions */}
           <section className="p-6 sm:p-7 rounded-3xl bg-[#170a1c] border border-[#301337] space-y-4">
             <div className="flex items-center gap-2">
-              <FileText className="w-5 h-5 text-[#f472b6]" />
+              <FileText className="w-5 h-5 text-[#a78bfa]" />
               <h2 className="text-lg sm:text-xl font-display font-bold text-white tracking-tight">
                 Event Terms & Gate Policies
               </h2>
@@ -232,7 +232,7 @@ export const EventDetailsView: React.FC<EventDetailsViewProps> = ({
                 'Organizers reserve the right to refuse admission to intoxicated guests.'
               ]).map((term, i) => (
                 <li key={i} className="flex items-start gap-2.5">
-                  <span className="w-4 h-4 rounded-full bg-[#290e2f] border border-[#481c56] flex items-center justify-center text-[10px] font-bold text-[#f43f5e] shrink-0 mt-0.5">
+                  <span className="w-4 h-4 rounded-full bg-[#290e2f] border border-[#481c56] flex items-center justify-center text-[10px] font-bold text-[#8b7bff] shrink-0 mt-0.5">
                     {i + 1}
                   </span>
                   <span>{term}</span>
@@ -266,13 +266,13 @@ export const EventDetailsView: React.FC<EventDetailsViewProps> = ({
               <div className="flex flex-col sm:items-end text-xs text-[#b8a6c2] space-y-1 shrink-0">
                 {event.organizer.contactEmail && (
                   <span className="flex items-center gap-1.5">
-                    <Mail className="w-3.5 h-3.5 text-[#f43f5e]" />
+                    <Mail className="w-3.5 h-3.5 text-[#8b7bff]" />
                     {event.organizer.contactEmail}
                   </span>
                 )}
                 {event.organizer.contactPhone && (
                   <span className="flex items-center gap-1.5 font-mono">
-                    <Phone className="w-3.5 h-3.5 text-[#f43f5e]" />
+                    <Phone className="w-3.5 h-3.5 text-[#8b7bff]" />
                     {event.organizer.contactPhone}
                   </span>
                 )}
@@ -285,7 +285,7 @@ export const EventDetailsView: React.FC<EventDetailsViewProps> = ({
         <div className="lg:col-span-4 sticky top-24 space-y-5">
           <div className="p-5 sm:p-6 rounded-3xl bg-[#170a1c] border border-[#3a1645] shadow-xl space-y-5">
             <div>
-              <span className="text-[10px] uppercase font-bold tracking-wider text-[#f472b6] block">
+              <span className="text-[10px] uppercase font-bold tracking-wider text-[#a78bfa] block">
                 Official Tickets
               </span>
               <h3 className="text-lg font-display font-bold text-white">
@@ -308,7 +308,7 @@ export const EventDetailsView: React.FC<EventDetailsViewProps> = ({
                     onClick={() => setSelectedTierForPreview(tier.id)}
                     className={`p-4 rounded-2xl border transition-all cursor-pointer space-y-2 ${
                       isSelected
-                        ? 'bg-gradient-to-r from-[#32103d] to-[#200927] border-[#f43f5e] shadow-md shadow-[#831843]/15'
+                        ? 'bg-gradient-to-r from-[#32103d] to-[#200927] border-[#8b7bff] shadow-md shadow-[#3e347d]/15'
                         : 'bg-[#1e0c25] border-[#311339] hover:border-[#4d1f5b]'
                     }`}
                   >
@@ -340,7 +340,7 @@ export const EventDetailsView: React.FC<EventDetailsViewProps> = ({
                       <div className="w-full h-1.5 rounded-full bg-[#2a1032] overflow-hidden">
                         <div
                           className={`h-full rounded-full ${
-                            tier.remaining < 30 ? 'bg-amber-500' : 'bg-gradient-to-r from-[#9f1239] to-[#c084fc]'
+                            tier.remaining < 30 ? 'bg-amber-500' : 'bg-gradient-to-r from-[#4c1d95] to-[#c084fc]'
                           }`}
                           style={{ width: `${percentRemaining}%` }}
                         />
@@ -351,7 +351,7 @@ export const EventDetailsView: React.FC<EventDetailsViewProps> = ({
                     <div className="space-y-1 pt-1 text-[11px] text-[#d6bfe3]">
                       {tier.perks.slice(0, 2).map((perk, idx) => (
                         <div key={idx} className="flex items-center gap-1.5">
-                          <Check className="w-3 h-3 text-[#f43f5e] shrink-0" />
+                          <Check className="w-3 h-3 text-[#8b7bff] shrink-0" />
                           <span className="truncate">{perk}</span>
                         </div>
                       ))}
@@ -379,7 +379,7 @@ export const EventDetailsView: React.FC<EventDetailsViewProps> = ({
                 variant="primary"
                 size="lg"
                 onClick={() => onStartCheckout(event, selectedTier)}
-                className="w-full shadow-lg shadow-[#831843]/20"
+                className="w-full shadow-lg shadow-[#3e347d]/20"
                 rightIcon={<ChevronRight className="w-4 h-4" />}
               >
                 Proceed to Checkout

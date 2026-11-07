@@ -14,7 +14,7 @@ export const Logo: React.FC<LogoProps> = ({ collapsed = false, className = '', o
       title="NyasaTickets — Malawi's Event Discovery & Ticketing"
     >
       {/* Brand Icon: Ticket Stub with Rising Sun Rays */}
-      <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-[#9f1239] via-[#831843] to-[#4c0519] flex items-center justify-center p-2 shadow-lg shadow-[#831843]/20 border border-[#f43f5e]/30 group-hover:scale-105 transition-transform duration-200 shrink-0">
+      <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-[#4c1d95] via-[#3730a3] to-[#172554] flex items-center justify-center p-2 shadow-lg shadow-[#312e81]/25 border border-[#8b7bff]/30 group-hover:scale-105 transition-transform duration-200 shrink-0">
         <svg 
           viewBox="0 0 24 24" 
           fill="none" 
@@ -33,14 +33,14 @@ export const Logo: React.FC<LogoProps> = ({ collapsed = false, className = '', o
           <path d="M7 12h1" />
           <path d="M16 12h1" />
         </svg>
-        <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-[#f43f5e] ring-2 ring-[#120716]" />
+        <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-[#8b7bff] ring-2 ring-[#120716]" />
       </div>
 
       {!collapsed && (
         <div className="flex flex-col leading-tight overflow-hidden">
           <div className="flex items-center gap-1.5">
             <span className="font-display font-bold text-lg tracking-tight text-white">
-              Nyasa<span className="text-[#f43f5e]">Tickets</span>
+              Nyasa<span className="text-[#a78bfa]">Tickets</span>
             </span>
           </div>
           <span className="text-[10px] uppercase font-medium tracking-wider text-[#9f8ca8]">

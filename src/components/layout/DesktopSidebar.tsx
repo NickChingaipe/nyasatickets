@@ -9,14 +9,14 @@ import {
   ShieldCheck, 
   PanelLeftClose, 
   PanelLeftOpen, 
-  Sparkles,
-  LayoutGrid
+  LayoutGrid,
+  QrCode
 } from 'lucide-react';
 import { Logo } from '../common/Logo';
 import { Badge } from '../common/Badge';
 import { UserProfile } from '../../types';
 
-export type NavTab = 'overview' | 'discover' | 'tickets' | 'profile' | 'organizer' | 'admin';
+export type NavTab = 'overview' | 'discover' | 'tickets' | 'profile' | 'scan' | 'organizer' | 'admin';
 
 interface DesktopSidebarProps {
   currentTab: NavTab;
@@ -26,6 +26,7 @@ interface DesktopSidebarProps {
   onOpenLegal: (type: 'help' | 'terms' | 'privacy') => void;
   activeTicketCount: number;
   currentUser?: UserProfile;
+  onOpenAuth: () => void;
   pendingApprovalsCount?: number;
 }
 
@@ -37,6 +38,7 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
   onOpenLegal,
   activeTicketCount,
   currentUser,
+  onOpenAuth,
   pendingApprovalsCount = 5
 }) => {
   const mainNavItems = [
@@ -63,18 +65,26 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
       label: 'My Profile',
       icon: User,
       badge: null
+    },
+    {
+      id: 'scan' as NavTab,
+      label: 'Scan QR Code',
+      icon: QrCode,
+      badge: null
     }
   ];
 
   return (
     <aside
-      className={`hidden md:flex flex-col justify-between shrink-0 h-screen sticky top-0 bg-[#120716] border-r border-[#260e2b] transition-all duration-300 z-30 select-none ${
+      className={`hidden md:flex flex-col justify-between shrink-0 h-dvh overflow-y-auto sticky top-0 bg-[#120716] border-r border-[#260e2b] transition-all duration-300 z-30 select-none ${
         isCollapsed ? 'w-[76px] px-2.5' : 'w-[250px] px-4'
       } py-5`}
     >
       {/* Top Brand & Toggle */}
       <div>
-        <div className="flex items-center justify-between pb-6 mb-2 border-b border-[#240d2a]">
+        <div className={`flex items-center border-b border-[#240d2a] ${
+          isCollapsed ? 'flex-col gap-3 pb-4' : 'justify-between pb-6 mb-2'
+        }`}>
           <Logo 
             collapsed={isCollapsed} 
             onClick={() => onSelectTab('overview')} 
@@ -105,26 +115,45 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
                 onClick={() => onSelectTab(item.id)}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm transition-all duration-150 cursor-pointer group relative ${
                   isActive
-                    ? 'bg-gradient-to-r from-[#831843]/80 to-[#4a044e]/70 text-white shadow-md shadow-[#831843]/15 border border-[#be185d]/30'
+                    ? 'bg-gradient-to-r from-[#4c1d95]/80 to-[#1e3a8a]/70 text-white shadow-md shadow-[#4c1d95]/15 border border-[#7c6cff]/30'
                     : 'text-[#ab9bb3] hover:text-[#f8f4fa] hover:bg-[#200c27]'
                 } ${isCollapsed ? 'justify-center px-0' : ''}`}
                 title={isCollapsed ? item.label : undefined}
               >
-                <Icon className={`w-5 h-5 shrink-0 transition-transform duration-150 ${isActive ? 'text-[#f43f5e]' : 'group-hover:scale-105'}`} />
+                <Icon className={`w-5 h-5 shrink-0 transition-transform duration-150 ${isActive ? 'text-[#a78bfa]' : 'group-hover:scale-105'}`} />
                 
                 {!isCollapsed && (
                   <span className="flex-1 text-left truncate">{item.label}</span>
                 )}
 
                 {!isCollapsed && item.badge && (
-                  <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-[#f43f5e] text-white">
+                  <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-[#5b45c6] text-white">
                     {item.badge}
                   </span>
                 )}
 
                 {isCollapsed && item.badge && (
-                  <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#f43f5e]" />
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#8b7bff]" />
                 )}
+              </button>
+            );
+          })}
+
+          {([
+            { type: 'help', label: 'Help & Support', icon: HelpCircle }
+          ] as const).map((item) => {
+            const Icon = item.icon;
+            return (
+              <button
+                key={item.type}
+                onClick={() => onOpenLegal(item.type)}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm text-[#ab9bb3] hover:text-[#f8f4fa] hover:bg-[#200c27] transition-all duration-150 cursor-pointer ${
+                  isCollapsed ? 'justify-center px-0' : ''
+                }`}
+                title={isCollapsed ? item.label : undefined}
+              >
+                <Icon className="w-5 h-5 shrink-0" />
+                {!isCollapsed && <span className="flex-1 text-left truncate">{item.label}</span>}
               </button>
             );
           })}
@@ -135,7 +164,7 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
           {!isCollapsed && (
             <div className="px-2 mb-2 flex items-center justify-between text-[11px] font-semibold uppercase tracking-wider text-[#796783]">
               <span>Management</span>
-              <span className="text-[10px] text-[#f43f5e] font-medium tracking-normal">Portal</span>
+              <span className="text-[10px] text-[#a78bfa] font-medium tracking-normal">Portal</span>
             </div>
           )}
 
@@ -144,12 +173,12 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
             onClick={() => onSelectTab('organizer')}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 cursor-pointer border group relative ${
               currentTab === 'organizer'
-                ? 'bg-[#3b1245] text-white border-[#f43f5e] shadow-lg shadow-[#831843]/20'
-                : 'bg-[#1b0b21] text-[#e0d2e8] border-[#431751]/80 hover:bg-[#270f2f] hover:border-[#f43f5e]/50'
+                ? 'bg-[#30204f] text-white border-[#8b7bff] shadow-lg shadow-[#4c1d95]/20'
+                : 'bg-[#1b0b21] text-[#e0d2e8] border-[#431751]/80 hover:bg-[#270f2f] hover:border-[#8b7bff]/50'
             } ${isCollapsed ? 'justify-center px-0' : ''}`}
             title={isCollapsed ? 'Organizer Portal' : undefined}
           >
-            <div className="w-6 h-6 rounded-lg bg-[#53175c] flex items-center justify-center shrink-0 text-[#f472b6] group-hover:scale-105 transition-transform">
+            <div className="w-6 h-6 rounded-lg bg-[#34205d] flex items-center justify-center shrink-0 text-[#a78bfa] group-hover:scale-105 transition-transform">
               <BriefcaseBusiness className="w-3.5 h-3.5" />
             </div>
 
@@ -174,12 +203,12 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
             onClick={() => onSelectTab('admin')}
             className={`w-full mt-2 flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 cursor-pointer border group relative ${
               currentTab === 'admin'
-                ? 'bg-gradient-to-r from-[#5c0e2b] to-[#3a083f] text-white border-[#f43f5e] shadow-lg shadow-[#831843]/30'
-                : 'bg-[#18081c] text-[#f2e6f5] border-[#4f1839]/80 hover:bg-[#2a0e2a] hover:border-[#f43f5e]/60'
+                ? 'bg-gradient-to-r from-[#38205f] to-[#172e5c] text-white border-[#8b7bff] shadow-lg shadow-[#312e81]/30'
+                : 'bg-[#18081c] text-[#f2e6f5] border-[#3b2859]/80 hover:bg-[#211530] hover:border-[#7c9cff]/60'
             } ${isCollapsed ? 'justify-center px-0' : ''}`}
             title={isCollapsed ? 'Administration Portal' : undefined}
           >
-            <div className="w-6 h-6 rounded-lg bg-[#831843] flex items-center justify-center shrink-0 text-white group-hover:scale-105 transition-transform">
+            <div className="w-6 h-6 rounded-lg bg-[#3e347d] flex items-center justify-center shrink-0 text-white group-hover:scale-105 transition-transform">
               <ShieldCheck className="w-3.5 h-3.5" />
             </div>
 
@@ -192,11 +221,6 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
               </div>
             )}
 
-            {!isCollapsed && (
-              <Badge variant="neutral" className="bg-[#831843]/80 text-white text-[9px] py-0 px-1.5 font-bold uppercase border-[#f43f5e]/40">
-                ADMIN
-              </Badge>
-            )}
           </button>
         </div>
       </div>
@@ -204,53 +228,64 @@ export const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
       {/* Bottom Area: User Account & Legal Links */}
       <div className="pt-4 border-t border-[#240d2a] space-y-3">
         {/* User Account Bar */}
-        <div 
-          onClick={() => onSelectTab('profile')}
-          className={`flex items-center gap-3 p-2 rounded-xl bg-[#190a1e] hover:bg-[#260f2e] border border-[#2e1236] transition-colors cursor-pointer group ${
-            isCollapsed ? 'justify-center p-2' : ''
-          }`}
-          title={isCollapsed ? `${currentUser?.name || 'Chikondi Banda'} (My Profile)` : undefined}
-        >
-          <div className="relative shrink-0">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#9f1239] to-[#7c3aed] flex items-center justify-center text-white font-bold text-xs shadow-md">
-              {currentUser?.avatar || 'CB'}
+        {currentUser?.id ? (
+          <div 
+            onClick={() => onSelectTab('profile')}
+            className={`flex items-center gap-3 p-2 rounded-xl bg-[#190a1e] hover:bg-[#260f2e] border border-[#2e1236] transition-colors cursor-pointer group ${
+              isCollapsed ? 'justify-center p-2' : ''
+            }`}
+            title={isCollapsed ? `${currentUser.name || currentUser.email} (My Profile)` : undefined}
+          >
+            <div className="relative shrink-0">
+              <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#4c1d95] to-[#1d4ed8] flex items-center justify-center text-white font-bold text-xs shadow-md">
+                {currentUser.avatar || currentUser.name.slice(0, 1).toUpperCase() || currentUser.email.slice(0, 1).toUpperCase()}
+              </div>
+              <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full ring-2 ring-[#120716] bg-emerald-500" />
             </div>
-            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-[#120716]" />
-          </div>
 
-          {!isCollapsed && (
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-1.5">
-                <p className="text-xs font-semibold text-white truncate group-hover:text-[#f43f5e] transition-colors">
-                  {currentUser?.name || 'Chikondi Banda'}
+            {!isCollapsed && (
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <p className="text-xs font-semibold text-white truncate group-hover:text-[#a78bfa] transition-colors">
+                    {currentUser.name || currentUser.email}
+                  </p>
+                </div>
+                <p className="text-[11px] text-[#9f8ea7] truncate">
+                  {currentUser.city ? `${currentUser.city}, MW` : currentUser.email}
                 </p>
               </div>
-              <p className="text-[11px] text-[#9f8ea7] truncate">
-                {currentUser?.city ? `${currentUser.city}, MW` : 'Malawi'}
-              </p>
+            )}
+          </div>
+        ) : (
+          <button
+            onClick={onOpenAuth}
+            className={`flex items-center gap-3 p-2 rounded-xl bg-[#190a1e] hover:bg-[#260f2e] border border-[#2e1236] transition-colors cursor-pointer group ${
+              isCollapsed ? 'justify-center p-2' : 'w-full'
+            }`}
+            title={isCollapsed ? 'Sign in' : undefined}
+          >
+            <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#4c1d95] to-[#1d4ed8] flex items-center justify-center text-white shrink-0">
+              <User className="w-4 h-4" />
             </div>
-          )}
-        </div>
+            {!isCollapsed && (
+              <span className="text-xs font-semibold text-white group-hover:text-[#a78bfa] transition-colors">
+                Sign in
+              </span>
+            )}
+          </button>
+        )}
 
-        {/* Legal & Support Links */}
         {!isCollapsed ? (
           <div className="space-y-1.5 pt-2 text-[11px] text-[#86758f]">
             <div className="flex flex-wrap gap-x-3 gap-y-1">
-              <button 
-                onClick={() => onOpenLegal('help')}
-                className="hover:text-white transition-colors cursor-pointer flex items-center gap-1"
-              >
-                <HelpCircle className="w-3 h-3 text-[#9f8ea7]" />
-                Help & Support
-              </button>
-              <button 
+              <button
                 onClick={() => onOpenLegal('terms')}
                 className="hover:text-white transition-colors cursor-pointer flex items-center gap-1"
               >
                 <FileText className="w-3 h-3 text-[#9f8ea7]" />
                 Terms
               </button>
-              <button 
+              <button
                 onClick={() => onOpenLegal('privacy')}
                 className="hover:text-white transition-colors cursor-pointer flex items-center gap-1"
               >

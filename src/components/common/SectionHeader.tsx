@@ -31,7 +31,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
       {actionText && onActionClick && (
         <button
           onClick={onActionClick}
-          className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#f43f5e] hover:text-[#fb7185] transition-colors cursor-pointer group shrink-0"
+          className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#8b7bff] hover:text-[#c4b5fd] transition-colors cursor-pointer group shrink-0"
         >
           <span>{actionText}</span>
           <svg 

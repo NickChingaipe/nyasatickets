@@ -20,11 +20,13 @@ import { TicketDetailModal } from '../components/tickets/TicketDetailModal';
 interface TicketsViewProps {
   tickets: TicketBooking[];
   onNavigateToDiscover: () => void;
+  loadError?: string | null;
 }
 
 export const TicketsView: React.FC<TicketsViewProps> = ({
   tickets,
-  onNavigateToDiscover
+  onNavigateToDiscover,
+  loadError
 }) => {
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
   const [selectedTicket, setSelectedTicket] = useState<TicketBooking | null>(null);
@@ -74,7 +76,7 @@ export const TicketsView: React.FC<TicketsViewProps> = ({
             onClick={() => setActiveTab('upcoming')}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
               activeTab === 'upcoming'
-                ? 'bg-[#831843] text-white shadow-sm'
+                ? 'bg-[#3e347d] text-white shadow-sm'
                 : 'text-[#9e8aa5] hover:text-white'
             }`}
           >
@@ -84,7 +86,7 @@ export const TicketsView: React.FC<TicketsViewProps> = ({
             onClick={() => setActiveTab('past')}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
               activeTab === 'past'
-                ? 'bg-[#831843] text-white shadow-sm'
+                ? 'bg-[#3e347d] text-white shadow-sm'
                 : 'text-[#9e8aa5] hover:text-white'
             }`}
           >
@@ -92,6 +94,12 @@ export const TicketsView: React.FC<TicketsViewProps> = ({
           </button>
         </div>
       </div>
+
+      {loadError && (
+        <p role="alert" className="rounded-xl border border-rose-800 bg-rose-950/40 px-4 py-3 text-sm text-rose-200">
+          {loadError}
+        </p>
+      )}
 
       {feedbackNotice && (
         <div className="p-3.5 rounded-xl bg-emerald-950/80 border border-emerald-700/60 text-emerald-200 text-xs flex items-center justify-between animate-fadeIn">
@@ -138,17 +146,17 @@ export const TicketsView: React.FC<TicketsViewProps> = ({
 
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#a997b2]">
                     <span className="flex items-center gap-1">
-                      <Calendar className="w-3.5 h-3.5 text-[#f43f5e]" />
+                      <Calendar className="w-3.5 h-3.5 text-[#8b7bff]" />
                       {ticket.eventDate} ({ticket.eventTime})
                     </span>
                     <span className="flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5 text-[#f43f5e]" />
+                      <MapPin className="w-3.5 h-3.5 text-[#8b7bff]" />
                       {ticket.venue}, {ticket.city}
                     </span>
                   </div>
 
                   <div className="flex items-center gap-3 pt-1 text-xs">
-                    <span className="text-[#f472b6] font-semibold">{ticket.tierName}</span>
+                    <span className="text-[#a78bfa] font-semibold">{ticket.tierName}</span>
                     <span className="text-[#594264]">·</span>
                     <span className="text-[#d7c4e0] font-mono font-medium">
                       Qty: {ticket.quantity} · Total: MWK {ticket.totalMWK.toLocaleString()}

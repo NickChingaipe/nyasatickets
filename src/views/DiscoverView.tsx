@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { 
   Search, 
   MapPin, 
@@ -7,7 +7,6 @@ import {
   X, 
   SlidersHorizontal,
   Compass,
-  Sparkles,
   ArrowRight
 } from 'lucide-react';
 import { EventItem, EventCategory } from '../types';
@@ -21,6 +20,7 @@ interface DiscoverViewProps {
   onSelectEvent: (event: EventItem) => void;
   initialCategory?: EventCategory | 'all';
   initialCity?: string;
+  initialSearchQuery?: string;
   savedEventIds: string[];
   onToggleSaveEvent: (eventId: string, e: React.MouseEvent) => void;
 }
@@ -30,16 +30,21 @@ export const DiscoverView: React.FC<DiscoverViewProps> = ({
   onSelectEvent,
   initialCategory = 'all',
   initialCity = 'all',
+  initialSearchQuery = '',
   savedEventIds,
   onToggleSaveEvent
 }) => {
-  const [searchFilter, setSearchFilter] = useState('');
+  const [searchFilter, setSearchFilter] = useState(initialSearchQuery);
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
   const [selectedCity, setSelectedCity] = useState<string>(initialCity);
   const [selectedDateRange, setSelectedDateRange] = useState<'all' | 'weekend' | 'month' | 'upcoming'>('all');
   const [priceSort, setPriceSort] = useState<'featured' | 'price_asc' | 'price_desc'>('featured');
 
   const cities = ['All Cities', 'Lilongwe', 'Blantyre', 'Mzuzu', 'Mangochi', 'Salima', 'Zomba'];
+
+  useEffect(() => {
+    setSearchFilter(initialSearchQuery);
+  }, [initialSearchQuery]);
 
   const filteredEvents = useMemo(() => {
     return events.filter(e => {
@@ -111,7 +116,7 @@ export const DiscoverView: React.FC<DiscoverViewProps> = ({
               value={searchFilter}
               onChange={(e) => setSearchFilter(e.target.value)}
               placeholder="Search by event, artist, venue or city..."
-              className="w-full pl-10 pr-9 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-xs sm:text-sm text-white placeholder-[#877292] focus:outline-none focus:border-[#f43f5e] transition-all"
+              className="w-full pl-10 pr-9 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-xs sm:text-sm text-white placeholder-[#877292] focus:outline-none focus:border-[#8b7bff] transition-all"
             />
             {searchFilter && (
               <button 
@@ -129,7 +134,7 @@ export const DiscoverView: React.FC<DiscoverViewProps> = ({
             <select
               value={selectedCity}
               onChange={(e) => setSelectedCity(e.target.value)}
-              className="w-full pl-10 pr-8 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-xs sm:text-sm text-white focus:outline-none focus:border-[#f43f5e] transition-all cursor-pointer appearance-none"
+              className="w-full pl-10 pr-8 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-xs sm:text-sm text-white focus:outline-none focus:border-[#8b7bff] transition-all cursor-pointer appearance-none"
             >
               {cities.map((city) => (
                 <option key={city} value={city} className="bg-[#1f0c26] text-white">
@@ -145,7 +150,7 @@ export const DiscoverView: React.FC<DiscoverViewProps> = ({
             <select
               value={selectedDateRange}
               onChange={(e) => setSelectedDateRange(e.target.value as any)}
-              className="w-full pl-10 pr-8 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-xs sm:text-sm text-white focus:outline-none focus:border-[#f43f5e] transition-all cursor-pointer appearance-none"
+              className="w-full pl-10 pr-8 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-xs sm:text-sm text-white focus:outline-none focus:border-[#8b7bff] transition-all cursor-pointer appearance-none"
             >
               <option value="all" className="bg-[#1f0c26]">All Dates</option>
               <option value="weekend" className="bg-[#1f0c26]">This Weekend</option>
@@ -159,7 +164,7 @@ export const DiscoverView: React.FC<DiscoverViewProps> = ({
             <select
               value={priceSort}
               onChange={(e) => setPriceSort(e.target.value as any)}
-              className="w-full px-3 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-xs sm:text-sm text-white focus:outline-none focus:border-[#f43f5e] transition-all cursor-pointer appearance-none"
+              className="w-full px-3 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-xs sm:text-sm text-white focus:outline-none focus:border-[#8b7bff] transition-all cursor-pointer appearance-none"
             >
               <option value="featured" className="bg-[#1f0c26]">Featured</option>
               <option value="price_asc" className="bg-[#1f0c26]">Price: Low</option>
@@ -174,7 +179,7 @@ export const DiscoverView: React.FC<DiscoverViewProps> = ({
             onClick={() => setSelectedCategory('all')}
             className={`px-3 py-1.5 rounded-xl font-medium whitespace-nowrap transition-all cursor-pointer ${
               selectedCategory === 'all'
-                ? 'bg-[#831843] text-white border border-[#f43f5e]'
+                ? 'bg-[#3e347d] text-white border border-[#8b7bff]'
                 : 'bg-[#220d2b] text-[#ab99b4] hover:text-white border border-[#3a1645]'
             }`}
           >
@@ -187,7 +192,7 @@ export const DiscoverView: React.FC<DiscoverViewProps> = ({
               onClick={() => setSelectedCategory(cat.id)}
               className={`px-3 py-1.5 rounded-xl font-medium whitespace-nowrap transition-all cursor-pointer ${
                 selectedCategory === cat.id
-                  ? 'bg-[#831843] text-white border border-[#f43f5e]'
+                  ? 'bg-[#3e347d] text-white border border-[#8b7bff]'
                   : 'bg-[#220d2b] text-[#ab99b4] hover:text-white border border-[#3a1645]'
               }`}
             >
@@ -198,7 +203,7 @@ export const DiscoverView: React.FC<DiscoverViewProps> = ({
           {hasActiveFilters && (
             <button
               onClick={resetFilters}
-              className="px-3 py-1.5 rounded-xl text-xs font-semibold text-[#f43f5e] hover:bg-[#831843]/20 transition-colors ml-auto whitespace-nowrap cursor-pointer flex items-center gap-1 shrink-0"
+              className="px-3 py-1.5 rounded-xl text-xs font-semibold text-[#8b7bff] hover:bg-[#3e347d]/20 transition-colors ml-auto whitespace-nowrap cursor-pointer flex items-center gap-1 shrink-0"
             >
               <X className="w-3.5 h-3.5" />
               Reset all
@@ -221,7 +226,7 @@ export const DiscoverView: React.FC<DiscoverViewProps> = ({
       {featuredItem && !hasActiveFilters && (
         <section className="space-y-3">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-[#f43f5e]" />
+            <Calendar className="w-4 h-4 text-[#8b7bff]" />
             <h2 className="text-base font-display font-bold text-white">
               Featured Festival Spotlight
             </h2>
@@ -242,7 +247,7 @@ export const DiscoverView: React.FC<DiscoverViewProps> = ({
 
             <div className="md:col-span-5 p-6 flex flex-col justify-between">
               <div className="space-y-2">
-                <span className="text-[10px] uppercase font-bold text-[#f472b6]">
+                <span className="text-[10px] uppercase font-bold text-[#a78bfa]">
                   {featuredItem.categoryLabel} · {featuredItem.city}, Malawi
                 </span>
                 <h3 className="text-xl font-display font-bold text-white leading-tight group-hover:text-[#fce7f3] transition-colors">
@@ -253,11 +258,11 @@ export const DiscoverView: React.FC<DiscoverViewProps> = ({
                 </p>
                 <div className="text-xs text-[#cfbee0] space-y-1 pt-1">
                   <p className="flex items-center gap-1.5">
-                    <Calendar className="w-3.5 h-3.5 text-[#f43f5e]" />
+                    <Calendar className="w-3.5 h-3.5 text-[#8b7bff]" />
                     {featuredItem.dateDisplay} ({featuredItem.timeDisplay})
                   </p>
                   <p className="flex items-center gap-1.5">
-                    <MapPin className="w-3.5 h-3.5 text-[#f43f5e]" />
+                    <MapPin className="w-3.5 h-3.5 text-[#8b7bff]" />
                     {featuredItem.venue}
                   </p>
                 </div>

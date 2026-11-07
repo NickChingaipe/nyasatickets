@@ -50,7 +50,22 @@ export const OrganizerAttendeesStaffSection: React.FC<OrganizerAttendeesStaffSec
   });
 
   const handleExportCSV = () => {
-    setExportNotice('Attendee manifest CSV successfully generated and downloaded.');
+    const columns: (keyof AttendeeRecord)[] = [
+      'customerName', 'customerEmail', 'customerPhone', 'orderReference',
+      'eventTitle', 'ticketType', 'quantity', 'totalMWK', 'ticketStatus', 'purchaseDate'
+    ];
+    const escapeCsv = (value: unknown) => `"${String(value ?? '').replace(/"/g, '""')}"`;
+    const content = [
+      columns.join(','),
+      ...filteredAttendees.map(attendee => columns.map(column => escapeCsv(attendee[column])).join(','))
+    ].join('\r\n');
+    const url = URL.createObjectURL(new Blob([content], { type: 'text/csv;charset=utf-8' }));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'attendees.csv';
+    link.click();
+    URL.revokeObjectURL(url);
+    setExportNotice(`${filteredAttendees.length} attendee records exported.`);
     setTimeout(() => setExportNotice(null), 3500);
   };
 
@@ -72,7 +87,7 @@ export const OrganizerAttendeesStaffSection: React.FC<OrganizerAttendeesStaffSec
   const roleLabels: Record<StaffRole, { name: string; badge: string; perms: string }> = {
     event_manager: {
       name: 'Event Manager',
-      badge: 'bg-[#50135d] text-pink-200 border-[#7a228e]',
+      badge: 'bg-[#50135d] text-violet-200 border-[#7a228e]',
       perms: 'Manage event details, configure ticket tiers, access attendee rosters'
     },
     scanner: {
@@ -92,7 +107,7 @@ export const OrganizerAttendeesStaffSection: React.FC<OrganizerAttendeesStaffSec
       {/* 1. Header Strip */}
       <div className="p-5 sm:p-6 rounded-3xl bg-[#16081c] border border-[#32133b] shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <span className="text-[10px] uppercase font-bold tracking-wider text-[#f472b6]">
+          <span className="text-[10px] uppercase font-bold tracking-wider text-[#a78bfa]">
             Operations & Gate Turnstiles
           </span>
           <h2 className="text-xl sm:text-2xl font-display font-bold text-white mt-0.5">
@@ -108,7 +123,7 @@ export const OrganizerAttendeesStaffSection: React.FC<OrganizerAttendeesStaffSec
           <button
             onClick={() => setSubTab('attendees')}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-              subTab === 'attendees' ? 'bg-[#831843] text-white shadow-sm' : 'text-[#a997b2] hover:text-white'
+              subTab === 'attendees' ? 'bg-[#3e347d] text-white shadow-sm' : 'text-[#a997b2] hover:text-white'
             }`}
           >
             Attendee Manifest ({attendees.length})
@@ -116,7 +131,7 @@ export const OrganizerAttendeesStaffSection: React.FC<OrganizerAttendeesStaffSec
           <button
             onClick={() => setSubTab('staff')}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-              subTab === 'staff' ? 'bg-[#831843] text-white shadow-sm' : 'text-[#a997b2] hover:text-white'
+              subTab === 'staff' ? 'bg-[#3e347d] text-white shadow-sm' : 'text-[#a997b2] hover:text-white'
             }`}
           >
             Gate Staff & Roles ({staffMembers.length})
@@ -146,7 +161,7 @@ export const OrganizerAttendeesStaffSection: React.FC<OrganizerAttendeesStaffSec
                 value={attendeeSearch}
                 onChange={(e) => setAttendeeSearch(e.target.value)}
                 placeholder="Search attendee by name, ref, or phone..."
-                className="w-full pl-9 pr-3 py-1.5 rounded-xl bg-[#150719] border border-[#391543] text-xs text-white focus:outline-none focus:border-[#f43f5e]"
+                className="w-full pl-9 pr-3 py-1.5 rounded-xl bg-[#150719] border border-[#391543] text-xs text-white focus:outline-none focus:border-[#8b7bff]"
               />
             </div>
 
@@ -188,13 +203,17 @@ export const OrganizerAttendeesStaffSection: React.FC<OrganizerAttendeesStaffSec
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#260f2d] text-white">
-                  {filteredAttendees.map((att) => (
+                  {filteredAttendees.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="px-5 py-10 text-center text-sm text-[#9f8fa9]">No attendee records match these filters.</td>
+                    </tr>
+                  ) : filteredAttendees.map((att) => (
                     <tr key={att.id} className="hover:bg-[#200c28]/70 transition-colors">
                       <td className="py-3.5 px-5">
                         <p className="font-semibold text-white">{att.customerName}</p>
                         <p className="text-[11px] text-[#9a87a4] font-mono">{att.customerPhone} · {att.customerEmail}</p>
                       </td>
-                      <td className="py-3.5 px-4 font-mono font-bold text-[#f472b6]">
+                      <td className="py-3.5 px-4 font-mono font-bold text-[#a78bfa]">
                         {att.orderReference}
                       </td>
                       <td className="py-3.5 px-4">
@@ -224,7 +243,7 @@ export const OrganizerAttendeesStaffSection: React.FC<OrganizerAttendeesStaffSec
         <div className="space-y-4">
           {/* Important Rule Notice on Gate Scanning Backend */}
           <div className="p-4 rounded-2xl bg-[#1e0c25] border border-[#481c56] text-[#d6bfe3] text-xs flex items-start gap-3">
-            <Info className="w-5 h-5 text-[#f43f5e] shrink-0 mt-0.5" />
+            <Info className="w-5 h-5 text-[#8b7bff] shrink-0 mt-0.5" />
             <div>
               <span className="font-bold text-white block">Phase 3 Staff & Gate Steward Architecture:</span>
               <p className="text-[11px] text-[#baa6c3] mt-0.5 leading-relaxed">

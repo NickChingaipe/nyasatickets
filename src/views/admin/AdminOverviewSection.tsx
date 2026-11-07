@@ -34,7 +34,7 @@ export const AdminOverviewSection: React.FC<AdminOverviewSectionProps> = ({
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#831843] text-white border border-[#f43f5e]/50 shadow-sm">
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#3e347d] text-white border border-[#8b7bff]/50 shadow-sm">
                 Super Administrator Console
               </span>
               <span className="text-xs text-[#a28fa8] font-mono">NyasaTickets Authority</span>
@@ -77,7 +77,7 @@ export const AdminOverviewSection: React.FC<AdminOverviewSectionProps> = ({
         <div className="p-4 rounded-2xl bg-[#170a1c] border border-[#32133b] space-y-1 shadow-sm">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-semibold text-[#9c89a7]">Customers</span>
-            <Users className="w-4 h-4 text-[#f43f5e]" />
+            <Users className="w-4 h-4 text-[#8b7bff]" />
           </div>
           <p className="text-xl sm:text-2xl font-mono font-bold text-white tabular-nums">
             {metrics.totalCustomers.toLocaleString()}
@@ -101,7 +101,7 @@ export const AdminOverviewSection: React.FC<AdminOverviewSectionProps> = ({
         <div className="p-4 rounded-2xl bg-[#170a1c] border border-[#32133b] space-y-1 shadow-sm">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-semibold text-[#9c89a7]">Total Events</span>
-            <Calendar className="w-4 h-4 text-pink-300" />
+            <Calendar className="w-4 h-4 text-violet-300" />
           </div>
           <p className="text-xl sm:text-2xl font-mono font-bold text-white tabular-nums">
             {metrics.totalEvents}
@@ -151,7 +151,7 @@ export const AdminOverviewSection: React.FC<AdminOverviewSectionProps> = ({
         {/* Pending Organisers Queue */}
         <div className="p-5 rounded-3xl bg-[#1c0a22] border border-[#3a1645] flex items-center justify-between gap-4">
           <div className="space-y-1">
-            <span className="text-[10px] uppercase font-bold text-[#f472b6]">Accreditation Queue</span>
+            <span className="text-[10px] uppercase font-bold text-[#a78bfa]">Accreditation Queue</span>
             <h3 className="font-bold text-white text-base">
               {metrics.pendingOrganizers} Organiser Applications Pending
             </h3>
@@ -170,7 +170,7 @@ export const AdminOverviewSection: React.FC<AdminOverviewSectionProps> = ({
         {/* Pending Events Queue */}
         <div className="p-5 rounded-3xl bg-[#1c0a22] border border-[#3a1645] flex items-center justify-between gap-4">
           <div className="space-y-1">
-            <span className="text-[10px] uppercase font-bold text-[#f472b6]">Event Moderation Queue</span>
+            <span className="text-[10px] uppercase font-bold text-[#a78bfa]">Event Moderation Queue</span>
             <h3 className="font-bold text-white text-base">
               {metrics.pendingEventApprovals} Events Awaiting Approval
             </h3>
@@ -191,7 +191,7 @@ export const AdminOverviewSection: React.FC<AdminOverviewSectionProps> = ({
       <div className="p-5 sm:p-6 rounded-3xl bg-[#170a1c] border border-[#32133b] space-y-4 shadow-xl">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Activity className="w-4 h-4 text-[#f43f5e]" />
+            <Activity className="w-4 h-4 text-[#8b7bff]" />
             <h3 className="text-base font-display font-bold text-white">Recent Platform Activity</h3>
           </div>
           <span className="text-xs text-[#9f8fa9]">System-wide audit trail</span>

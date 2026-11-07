@@ -69,7 +69,7 @@ export const EventCard: React.FC<EventCardProps> = ({
             }}
             className={`w-8 h-8 rounded-full backdrop-blur-md flex items-center justify-center transition-all cursor-pointer ${
               isSaved
-                ? 'bg-[#f43f5e] text-white shadow-md'
+                ? 'bg-[#8b7bff] text-white shadow-md'
                 : 'bg-[#120716]/75 text-[#d2bedb] hover:text-white hover:bg-[#120716]'
             }`}
             title={isSaved ? 'Remove from saved' : 'Save event'}
@@ -82,7 +82,7 @@ export const EventCard: React.FC<EventCardProps> = ({
         {/* Bottom City & Date Tag over Scrim */}
         <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between text-xs text-[#eedcf5] font-medium pointer-events-none">
           <span className="flex items-center gap-1.5 drop-shadow-sm truncate max-w-[60%]">
-            <MapPin className="w-3.5 h-3.5 text-[#f43f5e] shrink-0" />
+            <MapPin className="w-3.5 h-3.5 text-[#8b7bff] shrink-0" />
             <span className="truncate">{event.city}, Malawi</span>
           </span>
           <span className="drop-shadow-sm tabular-nums text-[#cfbed8] text-[11px] shrink-0">
@@ -96,7 +96,7 @@ export const EventCard: React.FC<EventCardProps> = ({
         <div>
           {/* Clean Unboxed Metadata with Typographic Separator */}
           <div className="flex items-center gap-1.5 text-[11px] text-[#a591b0] mb-1.5 font-medium flex-wrap">
-            <span className="text-[#f472b6] font-semibold">{event.categoryLabel}</span>
+            <span className="text-[#a78bfa] font-semibold">{event.categoryLabel}</span>
             <span aria-hidden="true" className="text-[#5b4465]">·</span>
             <span className="truncate">{event.venue}</span>
             <span aria-hidden="true" className="text-[#5b4465]">·</span>
@@ -130,7 +130,7 @@ export const EventCard: React.FC<EventCardProps> = ({
               e.stopPropagation();
               onSelect(event);
             }}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-[#2b1034] group-hover:bg-gradient-to-r group-hover:from-[#9f1239] group-hover:to-[#701a75] text-[#eedbf5] group-hover:text-white border border-[#481c56] group-hover:border-[#f43f5e]/40 transition-all cursor-pointer shrink-0"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-[#2b1034] group-hover:bg-gradient-to-r group-hover:from-[#4c1d95] group-hover:to-[#701a75] text-[#eedbf5] group-hover:text-white border border-[#481c56] group-hover:border-[#8b7bff]/40 transition-all cursor-pointer shrink-0"
           >
             <span>Tickets</span>
             <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" />

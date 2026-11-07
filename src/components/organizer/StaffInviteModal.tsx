@@ -6,7 +6,7 @@ import { Button } from '../common/Button';
 interface StaffInviteModalProps {
   events: OrganizerEvent[];
   onClose: () => void;
-  onAddStaff: (staff: EventStaffMember) => void;
+  onAddStaff: (staff: EventStaffMember) => boolean | Promise<boolean>;
 }
 
 export const StaffInviteModal: React.FC<StaffInviteModalProps> = ({
@@ -19,6 +19,8 @@ export const StaffInviteModal: React.FC<StaffInviteModalProps> = ({
   const [phone, setPhone] = useState('');
   const [role, setRole] = useState<StaffRole>('scanner');
   const [assignedEventId, setAssignedEventId] = useState<string>(events[0]?.id || '');
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const roleDescriptions: Record<StaffRole, { title: string; perms: string[]; note: string }> = {
     event_manager: {
@@ -51,22 +53,32 @@ export const StaffInviteModal: React.FC<StaffInviteModalProps> = ({
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !email.trim()) return;
+    if (!name.trim() || !email.trim() || !assignedEventId) {
+      setSaveError('Add an event before inviting staff.');
+      return;
+    }
 
     const newStaff: EventStaffMember = {
-      id: `stf-${Date.now()}`,
+      id: '',
       name,
       email,
-      phone: phone || '+265 99 000 0000',
+      phone,
       role,
       assignedEventIds: [assignedEventId],
       status: 'invited',
       addedAt: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
     };
 
-    onAddStaff(newStaff);
+    setIsSubmitting(true);
+    setSaveError(null);
+    const saved = await onAddStaff(newStaff);
+    setIsSubmitting(false);
+    if (!saved) {
+      setSaveError('Invitation could not be sent. Check the organizer notification for details.');
+      return;
+    }
     onClose();
   };
 
@@ -78,7 +90,7 @@ export const StaffInviteModal: React.FC<StaffInviteModalProps> = ({
       >
         <div className="p-5 sm:p-6 border-b border-[#2d1235] bg-[#1a0920] flex items-center justify-between gap-4 shrink-0">
           <div>
-            <span className="text-[10px] uppercase font-bold tracking-wider text-[#f472b6]">
+            <span className="text-[10px] uppercase font-bold tracking-wider text-[#a78bfa]">
               Staff & Gate Crew Management
             </span>
             <h2 className="text-lg sm:text-xl font-display font-bold text-white mt-0.5">
@@ -103,7 +115,7 @@ export const StaffInviteModal: React.FC<StaffInviteModalProps> = ({
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Tamandani Gondwe"
               required
-              className="w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-white focus:outline-none focus:border-[#f43f5e]"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-white focus:outline-none focus:border-[#8b7bff]"
             />
           </div>
 
@@ -116,7 +128,7 @@ export const StaffInviteModal: React.FC<StaffInviteModalProps> = ({
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="staff@domain.mw"
                 required
-                className="w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-white focus:outline-none focus:border-[#f43f5e]"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-white focus:outline-none focus:border-[#8b7bff]"
               />
             </div>
             <div>
@@ -126,7 +138,7 @@ export const StaffInviteModal: React.FC<StaffInviteModalProps> = ({
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="+265 ..."
-                className="w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-white focus:outline-none focus:border-[#f43f5e]"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-white focus:outline-none focus:border-[#8b7bff]"
               />
             </div>
           </div>
@@ -137,7 +149,9 @@ export const StaffInviteModal: React.FC<StaffInviteModalProps> = ({
               value={assignedEventId}
               onChange={(e) => setAssignedEventId(e.target.value)}
               className="w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3f184e] text-white"
+              disabled={events.length === 0}
             >
+              {events.length === 0 && <option value="">No events available</option>}
               {events.map((evt) => (
                 <option key={evt.id} value={evt.id}>
                   {evt.title} ({evt.city})
@@ -145,6 +159,8 @@ export const StaffInviteModal: React.FC<StaffInviteModalProps> = ({
               ))}
             </select>
           </div>
+
+          {saveError && <p role="alert" className="text-xs text-rose-300">{saveError}</p>}
 
           {/* Role Selection & Permissions Matrix */}
           <div>
@@ -157,7 +173,7 @@ export const StaffInviteModal: React.FC<StaffInviteModalProps> = ({
                   onClick={() => setRole(r)}
                   className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer ${
                     role === r 
-                      ? 'bg-[#831843] text-white border-[#f43f5e] font-bold' 
+                      ? 'bg-[#3e347d] text-white border-[#8b7bff] font-bold' 
                       : 'bg-[#1b0a21] text-[#bda7c7] border-[#34143e] hover:border-[#4d1f5b]'
                   }`}
                 >
@@ -168,7 +184,7 @@ export const StaffInviteModal: React.FC<StaffInviteModalProps> = ({
 
             {/* Permissions list for selected role */}
             <div className="p-3.5 rounded-2xl bg-[#1c0a22] border border-[#36133f] space-y-2">
-              <span className="text-[11px] font-bold text-[#f472b6] block">
+              <span className="text-[11px] font-bold text-[#a78bfa] block">
                 {roleDescriptions[role].title} Permissions:
               </span>
               <ul className="space-y-1.5 text-[11px] text-[#cfbee0]">
@@ -189,7 +205,7 @@ export const StaffInviteModal: React.FC<StaffInviteModalProps> = ({
             <Button variant="outline" size="sm" type="button" onClick={onClose}>
               Cancel
             </Button>
-            <Button variant="primary" size="sm" type="submit">
+            <Button variant="primary" size="sm" type="submit" isLoading={isSubmitting} disabled={isSubmitting || events.length === 0}>
               Send Staff Invitation
             </Button>
           </div>

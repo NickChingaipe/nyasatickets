@@ -26,7 +26,7 @@ export const LegalModal: React.FC<LegalModalProps> = ({ type, onClose }) => {
         {type === 'help' && (
           <div className="space-y-5">
             <div className="flex items-center gap-3 pb-4 border-b border-[#2c1135]">
-              <div className="w-10 h-10 rounded-xl bg-[#831843]/40 border border-[#f43f5e]/40 flex items-center justify-center text-[#f43f5e]">
+              <div className="w-10 h-10 rounded-xl bg-[#3e347d]/40 border border-[#8b7bff]/40 flex items-center justify-center text-[#8b7bff]">
                 <HelpCircle className="w-5 h-5" />
               </div>
               <div>
@@ -42,13 +42,13 @@ export const LegalModal: React.FC<LegalModalProps> = ({ type, onClose }) => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                 <div className="p-3.5 rounded-xl bg-[#1d0b24] border border-[#33133d] space-y-1">
-                  <span className="text-[10px] uppercase font-bold text-[#f472b6]">Direct Phone & WhatsApp</span>
+                  <span className="text-[10px] uppercase font-bold text-[#a78bfa]">Direct Phone & WhatsApp</span>
                   <p className="text-sm font-semibold text-white">+265 (0) 99 900 1234</p>
                   <p className="text-xs text-[#9f8da9]">Mon–Sun: 08:00 – 22:00 CAT</p>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-[#1d0b24] border border-[#33133d] space-y-1">
-                  <span className="text-[10px] uppercase font-bold text-[#f472b6]">Support Email</span>
+                  <span className="text-[10px] uppercase font-bold text-[#a78bfa]">Support Email</span>
                   <p className="text-sm font-semibold text-white">support@nyasatickets.mw</p>
                   <p className="text-xs text-[#9f8da9]">Guaranteed response within 2 hours</p>
                 </div>
@@ -74,7 +74,7 @@ export const LegalModal: React.FC<LegalModalProps> = ({ type, onClose }) => {
         {type === 'terms' && (
           <div className="space-y-4">
             <div className="flex items-center gap-3 pb-4 border-b border-[#2c1135]">
-              <div className="w-10 h-10 rounded-xl bg-[#831843]/40 border border-[#f43f5e]/40 flex items-center justify-center text-[#f43f5e]">
+              <div className="w-10 h-10 rounded-xl bg-[#3e347d]/40 border border-[#8b7bff]/40 flex items-center justify-center text-[#8b7bff]">
                 <FileText className="w-5 h-5" />
               </div>
               <div>
@@ -99,7 +99,7 @@ export const LegalModal: React.FC<LegalModalProps> = ({ type, onClose }) => {
         {type === 'privacy' && (
           <div className="space-y-4">
             <div className="flex items-center gap-3 pb-4 border-b border-[#2c1135]">
-              <div className="w-10 h-10 rounded-xl bg-[#831843]/40 border border-[#f43f5e]/40 flex items-center justify-center text-[#f43f5e]">
+              <div className="w-10 h-10 rounded-xl bg-[#3e347d]/40 border border-[#8b7bff]/40 flex items-center justify-center text-[#8b7bff]">
                 <ShieldCheck className="w-5 h-5" />
               </div>
               <div>

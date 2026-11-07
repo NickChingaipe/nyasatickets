@@ -22,7 +22,7 @@ export const Button: React.FC<ButtonProps> = ({
   disabled,
   ...props
 }) => {
-  const baseClasses = 'inline-flex items-center justify-center font-medium transition-all duration-150 rounded-xl select-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f43f5e] active:scale-[0.98]';
+  const baseClasses = 'inline-flex items-center justify-center font-medium transition-all duration-150 rounded-xl select-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b7bff] active:scale-[0.98]';
 
   const sizeClasses: Record<ButtonSize, string> = {
     sm: 'text-xs px-3 py-1.5 gap-1.5 h-8',
@@ -31,9 +31,9 @@ export const Button: React.FC<ButtonProps> = ({
   };
 
   const variantClasses: Record<ButtonVariant, string> = {
-    primary: 'bg-gradient-to-r from-[#9f1239] via-[#881337] to-[#701a75] hover:from-[#be123c] hover:via-[#9f1239] hover:to-[#86198f] text-white shadow-md shadow-[#881337]/30 border border-[#f43f5e]/30',
+    primary: 'bg-gradient-to-r from-[#4c1d95] via-[#881337] to-[#701a75] hover:from-[#be123c] hover:via-[#4c1d95] hover:to-[#86198f] text-white shadow-md shadow-[#881337]/30 border border-[#8b7bff]/30',
     secondary: 'bg-[#210e28] hover:bg-[#2d1436] text-[#f1eaf5] border border-[#481d58]/60 hover:border-[#6b2c82]/80',
-    outline: 'bg-transparent border border-[#522263] hover:border-[#f43f5e]/70 text-[#e9e0ef] hover:bg-[#260f2e]/60',
+    outline: 'bg-transparent border border-[#522263] hover:border-[#8b7bff]/70 text-[#e9e0ef] hover:bg-[#260f2e]/60',
     ghost: 'bg-transparent hover:bg-[#260f2e]/70 text-[#d8cce0] hover:text-white',
     danger: 'bg-red-950/80 hover:bg-red-900 border border-red-700/50 text-red-100 shadow-sm'
   };

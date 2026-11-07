@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   Building, 
   FileText, 
@@ -17,18 +17,20 @@ import {
 import { OrganizerApplication, ApplicationStatus } from '../../types';
 import { Button } from '../../components/common/Button';
 import { Badge } from '../../components/common/Badge';
+import { supabaseService } from '../../lib/supabase';
 
 interface OrganizerRegistrationSectionProps {
   application: OrganizerApplication;
-  onUpdateApplication: (app: OrganizerApplication) => void;
+  userId?: string;
+  onUpdateApplication: (app: OrganizerApplication) => boolean | Promise<boolean>;
 }
 
 export const OrganizerRegistrationSection: React.FC<OrganizerRegistrationSectionProps> = ({
   application,
+  userId,
   onUpdateApplication
 }) => {
-  // Mode switcher for testing/inspecting all 4 status screens: 'form' | 'submitted' | 'under_review' | 'approved' | 'rejected'
-  const [currentStatusView, setCurrentStatusView] = useState<ApplicationStatus>(application.status);
+  const currentStatusView = application.status;
 
   // Form states
   const [orgName, setOrgName] = useState(application.organizationName);
@@ -43,26 +45,60 @@ export const OrganizerRegistrationSection: React.FC<OrganizerRegistrationSection
   const [description, setDescription] = useState(application.description);
   const [documents, setDocuments] = useState(application.documents);
   const [isSavedFeedback, setIsSavedFeedback] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
-  const handleSimulateDocumentUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      const newDoc = {
-        id: `doc-${Date.now()}`,
-        name: file.name,
-        size: `${(file.size / 1024).toFixed(0)} KB`,
-        type: file.type || 'PDF Document',
-        uploadedAt: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
-      };
-      setDocuments([...documents, newDoc]);
+  useEffect(() => {
+    setOrgName(application.organizationName);
+    setLegalName(application.legalName);
+    setOrgType(application.organizationType);
+    setRegNumber(application.registrationNumber);
+    setEmail(application.email);
+    setPhone(application.phone);
+    setAddress(application.physicalAddress);
+    setCity(application.city);
+    setWebsite(application.website);
+    setDescription(application.description);
+    setDocuments(application.documents);
+  }, [application]);
+
+  const handleDocumentUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!userId) {
+      setUploadError('Sign in before uploading verification documents.');
+      return;
     }
+    setUploadError(null);
+    const result = await supabaseService.uploadOrganizerDocument(userId, file);
+    if (!result.success || !result.path) {
+      setUploadError(result.error || 'Document upload failed.');
+      return;
+    }
+    setDocuments(prev => [...prev, {
+      id: result.path!,
+      name: file.name,
+      size: `${(file.size / 1024).toFixed(0)} KB`,
+      type: file.type || 'Document',
+      uploadedAt: new Date().toISOString(),
+      fileUrl: result.path
+    }]);
+    e.target.value = '';
   };
 
-  const handleRemoveDoc = (id: string) => {
-    setDocuments(documents.filter(d => d.id !== id));
+  const handleRemoveDoc = async (id: string) => {
+    const document = documents.find(item => item.id === id);
+    if (!document) return;
+    if (document.fileUrl && userId) {
+      const result = await supabaseService.deleteOrganizerDocument(userId, document.fileUrl);
+      if (!result.success) {
+        setUploadError(result.error || 'Document deletion failed.');
+        return;
+      }
+    }
+    setDocuments(prev => prev.filter(documentItem => documentItem.id !== id));
   };
 
-  const handleSubmitApplication = (e: React.FormEvent) => {
+  const handleSubmitApplication = async (e: React.FormEvent) => {
     e.preventDefault();
     const updated: OrganizerApplication = {
       ...application,
@@ -81,8 +117,8 @@ export const OrganizerRegistrationSection: React.FC<OrganizerRegistrationSection
       submittedAt: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
     };
 
-    onUpdateApplication(updated);
-    setCurrentStatusView('submitted');
+    const saved = await onUpdateApplication(updated);
+    if (!saved) return;
     setIsSavedFeedback(true);
     setTimeout(() => setIsSavedFeedback(false), 3000);
   };
@@ -92,7 +128,7 @@ export const OrganizerRegistrationSection: React.FC<OrganizerRegistrationSection
       {/* 1. Header */}
       <div className="p-5 sm:p-6 rounded-3xl bg-[#16081c] border border-[#32133b] shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <span className="text-[10px] uppercase font-bold tracking-wider text-[#f472b6]">
+          <span className="text-[10px] uppercase font-bold tracking-wider text-[#a78bfa]">
             Compliance & Verification
           </span>
           <h2 className="text-xl sm:text-2xl font-display font-bold text-white mt-0.5">
@@ -104,28 +140,12 @@ export const OrganizerRegistrationSection: React.FC<OrganizerRegistrationSection
         </div>
 
         {/* State Simulator Switcher to review all 4 required status screens */}
-        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-[#200d27] border border-[#3b1747] text-xs">
-          <span className="text-[10px] text-[#8e7a96] font-bold uppercase px-2 hidden sm:inline">Status Screen:</span>
-          {(['submitted', 'under_review', 'approved', 'rejected'] as ApplicationStatus[]).map((statusKey) => (
-            <button
-              key={statusKey}
-              onClick={() => setCurrentStatusView(statusKey)}
-              className={`px-2.5 py-1 rounded-lg font-medium capitalize transition-all cursor-pointer ${
-                currentStatusView === statusKey
-                  ? 'bg-[#831843] text-white shadow-sm border border-[#f43f5e]'
-                  : 'text-[#9f8fa9] hover:text-white'
-              }`}
-            >
-              {statusKey.replace('_', ' ')}
-            </button>
-          ))}
-        </div>
       </div>
 
       {/* 2. Process Explanation Ribbon */}
       <div className="p-5 rounded-3xl bg-[#1b0a21] border border-[#32133b] space-y-3">
         <h3 className="text-sm font-bold text-white flex items-center gap-2">
-          <Info className="w-4 h-4 text-[#f43f5e]" />
+          <Info className="w-4 h-4 text-[#8b7bff]" />
           <span>The Organiser Verification Journey in Malawi</span>
         </h3>
 
@@ -162,7 +182,7 @@ export const OrganizerRegistrationSection: React.FC<OrganizerRegistrationSection
           <p className="text-xs text-[#bda7c7] max-w-md mx-auto leading-relaxed">
             Your organiser verification dossier for <strong>{orgName}</strong> was successfully submitted on {application.submittedAt}. Our verification team will begin review shortly.
           </p>
-          <p className="text-[11px] text-[#8e7a96] font-mono">Submission Reference: NYASA-REG-{regNumber || 'MBR-104928'}</p>
+          {application.id && <p className="text-[11px] text-[#8e7a96] font-mono">Submission Reference: {application.id}</p>}
         </div>
       )}
 
@@ -194,9 +214,6 @@ export const OrganizerRegistrationSection: React.FC<OrganizerRegistrationSection
           <p className="text-xs text-[#bda7c7] max-w-md mx-auto leading-relaxed">
             <strong>{orgName}</strong> is fully accredited. You possess unrestricted access to publish live events, configure custom ticket tiers, export guest manifests, and deploy gate turnstile staff.
           </p>
-          <p className="text-[11px] text-emerald-400 font-mono">
-            Accreditation Valid Through: 31 December 2027
-          </p>
         </div>
       )}
 
@@ -209,11 +226,8 @@ export const OrganizerRegistrationSection: React.FC<OrganizerRegistrationSection
           <Badge variant="danger">Application Status: Action Required / Resubmit</Badge>
           <h3 className="text-xl font-display font-bold text-white">Documentation Update Required</h3>
           <p className="text-xs text-[#bda7c7] max-w-md mx-auto leading-relaxed">
-            Your submission was returned for the following reason: <em className="text-white">"The uploaded Tax Clearance Certificate has expired. Please upload an updated MRA 2026 Tax Clearance certificate and resubmit."</em>
+            Your submission was returned for the following reason: <em className="text-white">{application.reviewFeedback || 'See the review feedback on your application.'}</em>
           </p>
-          <Button variant="primary" size="sm" onClick={() => setCurrentStatusView('submitted')}>
-            Update Documents & Resubmit
-          </Button>
         </div>
       )}
 
@@ -224,7 +238,7 @@ export const OrganizerRegistrationSection: React.FC<OrganizerRegistrationSection
             <h3 className="text-base font-display font-bold text-white">Organiser Application Profile</h3>
             <p className="text-xs text-[#9f8fa9]">Review or edit your organisation submission details</p>
           </div>
-          <Building className="w-5 h-5 text-[#f472b6]" />
+          <Building className="w-5 h-5 text-[#a78bfa]" />
         </div>
 
         <form onSubmit={handleSubmitApplication} className="space-y-4 text-xs">
@@ -258,8 +272,10 @@ export const OrganizerRegistrationSection: React.FC<OrganizerRegistrationSection
               <select
                 value={orgType}
                 onChange={(e) => setOrgType(e.target.value)}
+                required
                 className="w-full px-3.5 py-2.5 rounded-xl bg-[#1f0c26] border border-[#3e174b] text-white"
               >
+                <option value="" disabled>Select an organisation type</option>
                 <option value="Promoter / Entertainment">Promoter / Music & Entertainment</option>
                 <option value="Cultural Trust / NGO">Cultural Trust / Arts Foundation / NGO</option>
                 <option value="Venue Operator">Venue Operator / Hospitality</option>
@@ -364,11 +380,11 @@ export const OrganizerRegistrationSection: React.FC<OrganizerRegistrationSection
               </div>
 
               <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#2a0e33] hover:bg-[#391444] border border-[#521c64] text-xs text-white font-medium cursor-pointer">
-                <Upload className="w-3.5 h-3.5 text-[#f472b6]" />
+                <Upload className="w-3.5 h-3.5 text-[#a78bfa]" />
                 <span>Upload Document</span>
                 <input
                   type="file"
-                  onChange={handleSimulateDocumentUpload}
+                  onChange={handleDocumentUpload}
                   className="hidden"
                   accept=".pdf,.jpg,.jpeg,.png"
                 />
@@ -376,10 +392,11 @@ export const OrganizerRegistrationSection: React.FC<OrganizerRegistrationSection
             </div>
 
             <div className="space-y-2">
+              {uploadError && <p role="alert" className="text-xs text-rose-300">{uploadError}</p>}
               {documents.map((doc) => (
                 <div key={doc.id} className="p-3 rounded-xl bg-[#200d27] border border-[#36133f] flex items-center justify-between gap-3 text-xs">
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <Paperclip className="w-4 h-4 text-[#f43f5e] shrink-0" />
+                    <Paperclip className="w-4 h-4 text-[#8b7bff] shrink-0" />
                     <span className="font-semibold text-white truncate">{doc.name}</span>
                     <span className="text-[#8c7895] text-[10px]">({doc.size} · Uploaded {doc.uploadedAt})</span>
                   </div>
